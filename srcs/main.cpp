@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <poll.h>
 #include <string>
 
 using namespace std;
@@ -43,12 +44,13 @@ int main () {
 
 	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
 	{
-		cout << host << " connected on port " << service << endl;
+		cout << host << "1 connected on port " << service << endl;
 	}
 	else
 	{
 		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-		cout << host << " connected on port " << ntohs(client.sin_port) << endl;
+		cout << host << "2 connected on port " << ntohs(client.sin_port) <<
+		endl;
 	}
 
 	// Close listening socket
