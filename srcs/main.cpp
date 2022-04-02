@@ -81,7 +81,7 @@ int main (int argc, char* argv[])
 		switch (poll(fd_list, clientSize, 3000))
 		{
 			case 0: // timeout Time
-				cout << "timeout..." << endl;
+				cout << "it's alive..." << endl;
 				continue;
 			case -1: //failed
 				cout << "poll fail..." << endl;
@@ -125,9 +125,8 @@ int main (int argc, char* argv[])
 						{
 							close(new_sock);
 						}
-						cout << "get  a new link!" << inet_ntoa(client
-																		.sin_addr)
-							 << " " << ntohs(client.sin_port) << endl;
+						cout << "get a new link! " << inet_ntoa(client.sin_addr)
+							 << "; " << ntohs(client.sin_port) << endl;
 						continue;
 					}
 					//At this point, we are concerned with ordinary file
