@@ -15,19 +15,21 @@ int start_up( int port)
 {
 // Create a socket
 	int listening = socket(AF_INET, SOCK_STREAM, 0);
-	if (listening == -1)
+	if (listening < 0)
 	{
 		cerr << "Can't create a socket! Quitting" << endl;
 		return -1;
 	}
+	int opt = 1;
+	setsockopt(listening,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
 // Bind the ip address and port to a socket
-	sockaddr_in sock_ip;
+	struct sockaddr_in sock_ip;
 	sock_ip.sin_family = AF_INET;
+	sock_ip.sin_addr.s_addr = htonl(INADDR_ANY);
 	sock_ip.sin_port = htons(port);
-	inet_pton(AF_INET, "0.0.0.0", &sock_ip.sin_addr);
 
-	if (bind(listening, (sockaddr *) &sock_ip, sizeof(sock_ip)) < 0)
+	if (bind(listening, (struct sockaddr *) &sock_ip, sizeof(sock_ip)) < 0)
 	{
 		cerr << "Can't bind a socket!" << endl;
 		return -2;
@@ -35,7 +37,7 @@ int start_up( int port)
 
 
 // Tell Winsock the socket is for listening
-	if (listen(listening, SOMAXCONN) < 0)
+	if (listen(listening, 5) < 0)
 	{
 		cerr << "Can't listen" << endl;
 		return -3;
@@ -49,7 +51,7 @@ int main (int argc, char* argv[])
 {
 	if (argc != 2)
 	{
-		cout << argv[0] << endl;
+		cout << argv[0] << ", Please enter port" << endl;
 		return 1;
 	}
 
@@ -97,14 +99,14 @@ int main (int argc, char* argv[])
 						continue;
 					}
 					if (fd_list[i].fd == listen_sock && (fd_list[i].revents
-														 & POLLIN))
+						&POLLIN))
 					{
 						// Provide a connection acceptance sevice if the
 						// listening socket is ready to read
 						struct sockaddr_in client;
 						socklen_t len = sizeof(client);
 						int new_sock = accept(listen_sock, (struct sockaddr
-						*) &client, &len);
+								*) &client, &len);
 						if (new_sock < 0)
 						{
 							cerr << "accept fail" << endl;
@@ -137,7 +139,7 @@ int main (int argc, char* argv[])
 						ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
 						if (s < 0)
 						{
-							cerr << "read fail" << endl;
+							cerr << "read fail..." << endl;
 							continue;
 						} else if (s == 0)
 						{
