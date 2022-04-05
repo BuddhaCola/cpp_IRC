@@ -34,7 +34,7 @@ int startup( int port )
 
     if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )
     {
-        perror("bind fail...\n");
+        std::cerr << "Bind fail.." << std::endl;
         exit(3);
     }
 
@@ -51,7 +51,6 @@ int main(int argc,char* argv[] )
 {
     if( argc != 2 )
     {
-        //printf("Usage:%s port\n ",argv[0]);
         std::cout << argv[0] << " and <port> number!" << std::endl;
         return 1;
     }
@@ -97,7 +96,7 @@ int main(int argc,char* argv[] )
                 //printf("timeout...\n");
                 continue;
             case -1:// failed
-                printf("poll fail...\n");
+                std::cout << "poll fail ..." << std::endl;
                 continue;
             default: // Succeed
             {
@@ -114,12 +113,12 @@ int main(int argc,char* argv[] )
                     {
                         // 1. Provide a connection acceptance service if the listening socket is ready to read
 
-                        struct sockaddr_in client;
-                        socklen_t len = sizeof(client);
-                        int new_sock = accept(listen_sock,(struct sockaddr *)&client,&len);
+                        struct sockaddr_in client_adr;
+                        socklen_t len = sizeof(client_adr);
+                        int new_sock = accept(listen_sock,(struct sockaddr *)&client_adr,&len);
                         if(new_sock < 0)
                         {
-                            perror("accept fail...\n ");
+                            std::cout << "accept fail ..." << std::endl;
                             continue;
                         }
                         //After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
@@ -138,7 +137,8 @@ int main(int argc,char* argv[] )
                         {
                             close(new_sock);
                         }
-                        printf("get a new link![%s:%d]\n",inet_ntoa(client.sin_addr),ntohs(client.sin_port));
+                        std::cout << "Client successfully connected " << inet_ntoa(client_adr.sin_addr) << ":"
+                                << ntohs(client_adr.sin_port) << std::endl;
                         continue;
                     }
 
@@ -162,8 +162,7 @@ int main(int argc,char* argv[] )
                         else
                         {
                             buf[s] = 0;
-                            //printf("client# %s\n",buf);
-                            std::cout << "client #" << i << " " << buf << std::endl;
+                            std::cout << "client #" << i << ": " << buf << std::endl;
                         }
                     }
                 }
