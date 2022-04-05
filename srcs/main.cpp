@@ -41,7 +41,7 @@ int startup( int port )
     // 4. Get a listening socket
     if( listen(sock,5) < 0 )
     {
-        perror("listen fail...\n");
+        std::cerr << "listen fail... " << std::endl;
         exit(4);
     }
     return sock;
