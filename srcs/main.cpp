@@ -1,161 +1,175 @@
-#include "../Server.hpp"
-#include <iostream>
-#include <sys/types.h>
+#include <stdio.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
+#include <stdlib.h>
 #include <string.h>
 #include <poll.h>
-#include <string>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <iostream>
 
-using namespace std;
 
-int start_up( int port)
+int startup( int port )
 {
-// Create a socket
-	int listening = socket(AF_INET, SOCK_STREAM, 0);
-	if (listening < 0)
-	{
-		cerr << "Can't create a socket! Quitting" << endl;
-		return -1;
-	}
-	int opt = 1;
-	setsockopt(listening,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+    // 1. Create sockets
+    int sock = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
+    if( sock < 0 )
+    {
+        std::cerr << "Sockek fail.." << std::endl;
+        exit(2);
+    }
 
-// Bind the ip address and port to a socket
-	struct sockaddr_in sock_ip;
-	sock_ip.sin_family = AF_INET;
-	sock_ip.sin_addr.s_addr = htonl(INADDR_ANY);
-	sock_ip.sin_port = htons(port);
+    std::cout << "Hello World!" << std::endl;
 
-	if (bind(listening, (struct sockaddr *) &sock_ip, sizeof(sock_ip)) < 0)
-	{
-		cerr << "Can't bind a socket!" << endl;
-		return -2;
-	}
+    // 2. When TIME_WAIT is resolved, the server cannot be restarted; the server can be restarted immediately.
+    int opt = 1;
+    setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
+    struct sockaddr_in local;
+    local.sin_family = AF_INET;
+    local.sin_addr.s_addr = htonl(INADDR_ANY);// Address of any type
+    local.sin_port = htons(port);// The port number here can also be specified directly as 8080.
+    // 3. Binding port number
 
-// Tell Winsock the socket is for listening
-	if (listen(listening, 5) < 0)
-	{
-		cerr << "Can't listen" << endl;
-		return -3;
-	}
-	return listening;
+    if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )
+    {
+        perror("bind fail...\n");
+        exit(3);
+    }
+
+    // 4. Get a listening socket
+    if( listen(sock,5) < 0 )
+    {
+        perror("listen fail...\n");
+        exit(4);
+    }
+    return sock;
 }
 
-
-
-int main (int argc, char* argv[])
+int main(int argc,char* argv[] )
 {
-	if (argc != 2)
-	{
-		cout << argv[0] << ", Please enter port" << endl;
-		return 1;
-	}
+    if( argc != 2 )
+    {
+        //printf("Usage:%s port\n ",argv[0]);
+        std::cout << argv[0] << " and <port> number!" << std::endl;
+        return 1;
+    }
 
-	// Get a listening socket
-	int listen_sock = start_up(atoi(argv[1]));
-	// List of Structures to Monitor
-	struct pollfd fd_list[1024];
-	int clientSize = sizeof(fd_list) / sizeof(fd_list[0]);
-	for (int i = 0; i < clientSize; i++)
-	{
-		fd_list[i].fd = -1; // File descriptor
-		fd_list[i].events = 0; // Set of events to monitor
-		fd_list[i].revents = 0; // Ready Event Set of Concerned Descriptors
-	}
 
-	//Add read-only events for file descriptors of interest
-	for (int i = 0; i < clientSize; i++)
-	{
-		if (fd_list[i].fd == -1)
-		{
-			fd_list[i].fd = listen_sock;
-			fd_list[i].events = POLLIN;    // Concern about Read-Only Events
-			break;
-		}
-	}
-	while (1)
-	{
-		//Start calling poll
-		switch (poll(fd_list, clientSize, 3000))
-		{
-			case 0: // timeout Time
-				cout << "it's alive..." << endl;
-				continue;
-			case -1: //failed
-				cout << "poll fail..." << endl;
-				continue;
-			default: //Succed
-			{
-				// If it's a listener file descriptor, call accept to accept
-				// a new connection
-				for (int i = 0; i < clientSize; i++)
-				{
-					if (fd_list[i].fd == -1)
-					{
-						continue;
-					}
-					if (fd_list[i].fd == listen_sock && (fd_list[i].revents
-						&POLLIN))
-					{
-						// Provide a connection acceptance sevice if the
-						// listening socket is ready to read
-						struct sockaddr_in client;
-						socklen_t len = sizeof(client);
-						int new_sock = accept(listen_sock, (struct sockaddr
-								*) &client, &len);
-						if (new_sock < 0)
-						{
-							cerr << "accept fail" << endl;
-							continue;
-						}
-						//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
-						for (int i = 0; i < clientSize; i++)
-						{
-							if (fd_list[i].fd == -1) // Place the first value
-								// in the array at -1
-								break;
-						}
-						if (i < clientSize)
-						{
-							fd_list[i].fd = new_sock;
-							fd_list[i].events = POLLIN;
-						} else
-						{
-							close(new_sock);
-						}
-						cout << "get a new link! " << inet_ntoa(client.sin_addr)
-							 << "; " << ntohs(client.sin_port) << endl;
-						continue;
-					}
-					//At this point, we are concerned with ordinary file
-					// descriptors.
-					if (fd_list[i].revents & POLLIN)
-					{
-						char buf[1024];
-						ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
-						if (s < 0)
-						{
-							cerr << "read fail..." << endl;
-							continue;
-						} else if (s == 0)
-						{
-							cout << "client quit..." << endl;
-							close(fd_list[i].fd);
-							fd_list[i].fd = -1;
-						} else
-						{
-							buf[s] = 0;
-							cout << "client: " << buf << endl;
-						}
-					}
-				}
-			}
-				break;
-		}
-	}
-	return 0;
+    // 1. Get a listening socket
+    int listen_sock = startup(atoi(argv[1]));//Port numbers are passed in as strings and need to be converted to integers
+
+
+    // 2. Initialization of Structures - List of Structures to Monitor
+    struct pollfd fd_list[1024];
+    int num = sizeof(fd_list)/sizeof(fd_list[0]);
+    int i = 0;
+
+    for(; i < num ; i++  )
+    {
+        fd_list[i].fd = -1;// File descriptor
+        fd_list[i].events = 0;// Set of events to monitor
+        fd_list[i].revents = 0;// Ready Event Set of Concerned Descriptors
+    }
+
+
+    // 3. Add read-only events for file descriptors of interest
+
+    i = 0;
+    for( ; i < num; i++ )
+    {
+        if( fd_list[i].fd == -1 )
+        {
+            fd_list[i].fd = listen_sock;
+            fd_list[i].events = POLLIN;// Concern about Read-Only Events
+            break;
+        }
+
+    }
+    while(1)
+    {
+
+        //4. Start calling poll and wait for the file descriptor set of interest to be ready
+        switch( poll(fd_list,num,3000) )
+        {
+            case 0:// The state of the denominator has exceeded before it has changed. timeout Time
+                //printf("timeout...\n");
+                continue;
+            case -1:// failed
+                printf("poll fail...\n");
+                continue;
+            default: // Succeed
+            {
+                //   If it is a listener file descriptor, call accept to accept a new connection
+                //   If it is a normal file descriptor, read is called to read the data
+                int i = 0;
+                for( ;i < num; i++ )
+                {
+                    if( fd_list[i].fd == -1 )
+                    {
+                        continue;
+                    }
+                    if( fd_list[i].fd == listen_sock && ( fd_list[i].revents & POLLIN ))
+                    {
+                        // 1. Provide a connection acceptance service if the listening socket is ready to read
+
+                        struct sockaddr_in client;
+                        socklen_t len = sizeof(client);
+                        int new_sock = accept(listen_sock,(struct sockaddr *)&client,&len);
+                        if(new_sock < 0)
+                        {
+                            perror("accept fail...\n ");
+                            continue;
+                        }
+                        //After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
+                        int i = 0;
+                        for( ; i < num; i++ )
+                        {
+                            if( fd_list[i].fd == -1 )//Place the first value in the array at - 1
+                                break;
+                        }
+                        if( i < num )
+                        {
+                            fd_list[i].fd= new_sock;
+                            fd_list[i].events = POLLIN;
+                        }
+                        else
+                        {
+                            close(new_sock);
+                        }
+                        printf("get a new link![%s:%d]\n",inet_ntoa(client.sin_addr),ntohs(client.sin_port));
+                        continue;
+                    }
+
+                    //2. At this point, we are concerned with ordinary file descriptors.
+                    //   Provide services to read data at this time
+                    if( fd_list[i].revents & POLLIN  )
+                    {
+                        char buf[1024];
+                        ssize_t s = read(fd_list[i].fd,buf,sizeof(buf)-1);
+                        if( s < 0 )
+                        {
+                            printf("read fail...\n");
+                            continue;
+                        }
+                        else if( s == 0 )
+                        {
+                            printf("client quit...\n");
+                            close(fd_list[i].fd);
+                            fd_list[i].fd = -1;
+                        }
+                        else
+                        {
+                            buf[s] = 0;
+                            //printf("client# %s\n",buf);
+                            std::cout << "client #" << i << " " << buf << std::endl;
+                        }
+                    }
+                }
+            }
+                break;
+        }
+    }
+    return 0;
 }
