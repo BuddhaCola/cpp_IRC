@@ -7,14 +7,15 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <iostream>
 
 
 int startup( int port )
 {
     // 1. Create sockets
-    int sock = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
-    if( sock < 0 )
+    int listening = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
+    if( listening < 0 )
     {
         std::cerr << "Sockek fail.." << std::endl;
         exit(2);
@@ -24,7 +25,9 @@ int startup( int port )
 
     // 2. When TIME_WAIT is resolved, the server cannot be restarted; the server can be restarted immediately.
     int opt = 1;
-    setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+    if (fcntl(listening, F_SETFL, O_NONBLOCK))
+        throw "Non-blocking socket isn't made";
+    setsockopt(listening,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
     struct sockaddr_in local;
     local.sin_family = AF_INET;
@@ -32,19 +35,19 @@ int startup( int port )
     local.sin_port = htons(port);// The port number here can also be specified directly as 8080.
     // 3. Binding port number
 
-    if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )
+    if( bind(listening,(struct sockaddr *)&local,sizeof(local)) < 0 )
     {
         std::cerr << "Bind fail.." << std::endl;
         exit(3);
     }
 
     // 4. Get a listening socket
-    if( listen(sock,5) < 0 )
+    if( listen(listening,5) < 0 )
     {
         std::cerr << "listen fail... " << std::endl;
         exit(4);
     }
-    return sock;
+    return listening;
 }
 
 int main(int argc,char* argv[] )
