@@ -62,10 +62,10 @@ int main(int argc,char* argv[] )
 
     // 2. Initialization of Structures - List of Structures to Monitor
     struct pollfd fd_list[1024];
-    int num = sizeof(fd_list)/sizeof(fd_list[0]);
+    int fd_list_size = sizeof(fd_list)/sizeof(fd_list[0]);
     int i = 0;
 
-    for(; i < num ; i++  )
+    for(; i < fd_list_size ; i++  )
     {
         fd_list[i].fd = -1;// File descriptor
         fd_list[i].events = 0;// Set of events to monitor
@@ -76,7 +76,7 @@ int main(int argc,char* argv[] )
     // 3. Add read-only events for file descriptors of interest
 
     i = 0;
-    for( ; i < num; i++ )
+    for( ; i < fd_list_size; i++ )
     {
         if( fd_list[i].fd == -1 )
         {
@@ -90,7 +90,7 @@ int main(int argc,char* argv[] )
     {
 
         //4. Start calling poll and wait for the file descriptor set of interest to be ready
-        switch( poll(fd_list,num,3000) )
+        switch( poll(fd_list,fd_list_size,3000) )
         {
             case 0:// The state of the denominator has exceeded before it has changed. timeout Time
                 //printf("timeout...\n");
@@ -103,7 +103,7 @@ int main(int argc,char* argv[] )
                 //   If it is a listener file descriptor, call accept to accept a new connection
                 //   If it is a normal file descriptor, read is called to read the data
                 int i = 0;
-                for( ;i < num; i++ )
+                for( ;i < fd_list_size; i++ )
                 {
                     if( fd_list[i].fd == -1 )
                     {
@@ -123,14 +123,14 @@ int main(int argc,char* argv[] )
                         }
                         //After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
                         int i = 0;
-                        for( ; i < num; i++ )
+                        for( ; i < fd_list_size; i++ )
                         {
                             if( fd_list[i].fd == -1 )//Place the first value in the array at - 1
                                 break;
                         }
-                        if( i < num )
+                        if( i < fd_list_size )
                         {
-                            fd_list[i].fd= new_sock;
+                            fd_list[i].fd = new_sock;
                             fd_list[i].events = POLLIN;
                         }
                         else
@@ -150,19 +150,19 @@ int main(int argc,char* argv[] )
                         ssize_t s = read(fd_list[i].fd,buf,sizeof(buf)-1);
                         if( s < 0 )
                         {
-                            printf("read fail...\n");
+                            std::cout << "read fail ..." << std::endl;
                             continue;
                         }
                         else if( s == 0 )
                         {
-                            printf("client quit...\n");
+                            std::cout << "client#" << i << " quit" << std::endl;
                             close(fd_list[i].fd);
                             fd_list[i].fd = -1;
                         }
                         else
                         {
                             buf[s] = 0;
-                            std::cout << "client #" << i << ": " << buf << std::endl;
+                            std::cout << "client fd_list[" << i << "]: " << buf << std::endl;
                         }
                     }
                 }
