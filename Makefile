@@ -1,10 +1,12 @@
 NAME	= ircserv
 
-SRC		=	srcs/main.cpp
+SRC		=	srcs/main.cpp\
+ 			srcs/User.cpp\
+ 			srcs/Server.cpp
 
 CXX		= c++
 
-CPPFLAGS	= -g -std=c++98 -Wall -Wextra -Werror
+CPPFLAGS	= -g -std=c++98 #-Wall -Wextra -Werror
 
 OBJ		= $(SRC:.cpp=.o)
 
