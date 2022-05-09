@@ -5,13 +5,20 @@
 #include <iostream>
 #include "User.hpp"
 #include "Channel.hpp"
+#include <sys/select.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <iostream>
 
 class Server {
 public:
 	Server(int, std::string);
 
-	void		startLoop();
+	int 		creat_listen_socket(int);
+	void		startLoop(int);
 	std::string	getPassword() const;
+	int 		getPort() const;
 
 	Server & operator= (const Server &other);
 	~Server();
