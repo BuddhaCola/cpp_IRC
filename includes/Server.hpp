@@ -1,11 +1,15 @@
 #ifndef MY_IRC_SERVER_HPP
 #define MY_IRC_SERVER_HPP
 
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <string>
 #include <iostream>
 #include "User.hpp"
 #include "Channel.hpp"
 #include <sys/select.h>
+#include <poll.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
