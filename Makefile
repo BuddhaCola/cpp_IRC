@@ -4,7 +4,7 @@ SRC		=	srcs/main.cpp
 
 CXX		= c++
 
-CPPFLAGS	= -g -Wall -Wextra -Werror
+CPPFLAGS	= -g -std=c++98 -Wall -Wextra -Werror
 
 OBJ		= $(SRC:.cpp=.o)
 
