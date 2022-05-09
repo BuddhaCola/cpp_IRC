@@ -4,6 +4,8 @@
 #define CYAN "\033[36m"
 #define RESET "\033[0m"
 
+#define MORE_INFO
+
 class FtException: public std::exception
 {
 public:
@@ -11,6 +13,6 @@ public:
 	{
 		return "Look for FtException";
 	}
-} ftex;
+};
 
 #endif //MY_IRC_MY_IRC_HPP

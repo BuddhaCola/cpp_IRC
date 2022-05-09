@@ -3,8 +3,6 @@
 #include "../includes/Server.hpp"
 #include <stdlib.h>
 
-#define DEBUG
-
 void validateArguments(int ac, char **av) {
 	if (ac < 2) {
 		std::cout << "Usage: ./ircserv <port> <password>" << std::endl;
@@ -18,7 +16,7 @@ void validateArguments(int ac, char **av) {
 			exit(-1);
 		}
 		if (strlen(av[2]) == 0) {
-			std::cerr << "_password can't be an empty string" << std::endl;
+			std::cerr << "password can't be an empty string" << std::endl;
 			exit(-1);
 		}
 	}
@@ -28,7 +26,7 @@ void validateArguments(int ac, char **av) {
 	}
 	catch (std::exception &e) {
 		std::cerr << "invalid argument: port" << std::endl;
-#ifdef DEBUG
+#ifdef MORE_INFO
 		std::cerr << CYAN << e.what() << RESET << std::endl;
 #endif
 		exit(-1);
@@ -46,7 +44,7 @@ int main(int ac, char **av)
 	}
 	catch (std::exception &e) {
 		std::cerr << "An error occurred" << std::endl;
-		#ifdef DEBUG
+		#ifdef MORE_INFO
 		std::cerr << CYAN << e.what() << RESET << std::endl;
 		#endif
 		exit(-1);

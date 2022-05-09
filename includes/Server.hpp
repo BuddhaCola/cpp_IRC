@@ -6,8 +6,11 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+
 #include "User.hpp"
 #include "Channel.hpp"
+#include "Command.hpp"
+#include "my_irc.hpp"
 #include <sys/select.h>
 #include <poll.h>
 #include <netinet/in.h>
@@ -18,20 +21,23 @@
 class Server {
 public:
 	Server(int, std::string);
-
-	int 		creat_listen_socket(int);
-	void		startLoop(int);
-	std::string	getPassword() const;
-	int 		getPort() const;
-
+	int 						creat_listen_socket(int);
+	void						startLoop(int);
+	std::string					getPassword() const;
+	int 						getPort() const;
 	Server & operator= (const Server &other);
-	~Server();
 
+	~Server();
 private:
+
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
+
 	std::vector<Channel *> 	_channels;
+	void						handleRequest(char *);
+	static std::vector<Command>	parseRequest(std::string const &request);
+
 	Server();
 };
 

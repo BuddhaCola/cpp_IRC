@@ -133,6 +133,7 @@ void Server::startLoop(int listen_sock)
 						} else
 						{
 							buf[s] = 0;
+							handleRequest(buf);
 							std::cout << "client fd = " << fd_list[i].fd << " "
 													  "" <<
 							buf << std::endl;
@@ -161,4 +162,40 @@ Server &Server::operator=(const Server &other) {
 	this->_port = other._port;
 	this->_password = other._password;
 	return(*this);
+}
+
+void	executeCommand(Command const &command){
+	//TODO
+#ifdef MORE_INFO
+	std::cout << CYAN << "executing " << command << RESET << std::endl;
+#endif
+}
+
+void Server::handleRequest(char *request) {
+	std::vector<Command> commands;
+	commands = parseRequest(std::string(request));
+	if (commands.empty()) {
+		#ifdef MORE_INFO
+		std::cout << CYAN "|unrecognized request: " << request << RESET << std::endl;
+		#endif
+	}
+	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
+		executeCommand(*it);
+	}
+}
+
+std::vector<Command> Server::parseRequest(std::string const &request) {
+	std::vector<Command>	commands;
+	std::string				strRequest;
+
+	strRequest = std::string(request);
+	size_t pos = 0;
+	std::string commandBody;
+	while ((pos = strRequest.find("\r\n")) != std::string::npos) {
+		commandBody = strRequest.substr(0, pos);
+		std::cout << commandBody << std::endl;
+		commands.push_back(Command(commandBody));
+		strRequest = strRequest.erase(0, pos + 2);
+	}
+	return commands;
 }
