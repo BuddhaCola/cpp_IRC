@@ -1,4 +1,6 @@
 #include "../includes/Server.hpp"
+#include "../includes/Command.hpp"
+#include "../includes/User.hpp"
 
 Server::Server(int port, std::string password) : _port(port), _password(password){
 }
@@ -57,6 +59,8 @@ void Server::startLoop(int listen_sock)
 		}
 	}
 
+
+
 	while (1)
 	{
 		//4. Start calling poll and wait for the file descriptor set of interest to be ready
@@ -97,8 +101,8 @@ void Server::startLoop(int listen_sock)
 						int i = 0;
 						for (; i < num; i++)
 						{
-							if (fd_list[i].fd ==
-								-1)//Place the first value in the array at - 1
+							if (fd_list[i].fd == -1)//Place the first value
+								// in the array at - 1
 								break;
 						}
 						if (i < num)
@@ -109,9 +113,17 @@ void Server::startLoop(int listen_sock)
 						{
 							close(new_sock);
 						}
-						std::cout << "get a new link!" <<
+
+						std::cout << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
+						_users.push_back(new User(fd_list[i].fd));
+						std::cout << "Created a new user" << std::endl;
+						for (size_t i = 0; i < _users.size(); ++i) {
+							std::cout << "Pointer to a user " <<  _users.at(i)
+							<< std::endl;
+						}
+
 						continue;
 					}
 
@@ -166,13 +178,15 @@ Server &Server::operator=(const Server &other) {
 
 void	executeCommand(Command const &command){
 	//TODO
+	std::cout << "test" << std::endl;
 #ifdef MORE_INFO
 	std::cout << CYAN << "executing " << command << RESET << std::endl;
 #endif
 }
 
 void Server::handleRequest(char *request) {
-	std::vector<Command> commands;
+	std::vector<Command> 	commands;
+	std::vector<User> 		users;
 	commands = parseRequest(std::string(request));
 	if (commands.empty()) {
 		#ifdef MORE_INFO
@@ -186,6 +200,7 @@ void Server::handleRequest(char *request) {
 
 std::vector<Command> Server::parseRequest(std::string const &request) {
 	std::vector<Command>	commands;
+
 	std::string				strRequest;
 
 	strRequest = std::string(request);

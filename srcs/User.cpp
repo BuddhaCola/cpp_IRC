@@ -3,6 +3,9 @@
 User::User() : _fd(-1), _nick(std::string()) {
 }
 
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()) {
+}
+
 User::~User() {
 }
 
@@ -12,6 +15,10 @@ int User::getFd() const {
 
 std::string User::getNick() const {
 	return this->_nick;
+}
+
+void User::setNick(std::string nick) {
+	this->_nick = nick;
 }
 
 User &User::operator=(const User &other) {

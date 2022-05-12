@@ -7,8 +7,10 @@
 class User {
 public:
 	User();
+	User(int);
 	int 		getFd() const;
 	std::string	getNick() const;
+	void 		setNick(std::string nick);
 	User & operator= (const User &other);
 	~User();
 private:
