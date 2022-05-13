@@ -113,14 +113,15 @@ void Server::startLoop(int listen_sock)
 						{
 							close(new_sock);
 						}
-
+						User *new_user = new User(fd_list[i].fd);
 						std::cout << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
-						_users.push_back(new User(fd_list[i].fd));
-						std::cout << "Created a new user" << std::endl;
+						_users.push_back(new_user);
+						std::cout << "Created " << i <<  " user" << std::endl;
 						for (size_t i = 0; i < _users.size(); ++i) {
-							std::cout << "Pointer to a user " <<  _users.at(i)
+							std::cout << "fd:  " <<
+							_users[i]->getFd()
 							<< std::endl;
 						}
 
