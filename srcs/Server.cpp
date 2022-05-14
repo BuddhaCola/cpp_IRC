@@ -1,6 +1,4 @@
 #include "../includes/Server.hpp"
-#include "../includes/Command.hpp"
-#include "../includes/User.hpp"
 
 Server::Server(int port, std::string password) : _port(port), _password(password){
 }
@@ -59,8 +57,6 @@ void Server::startLoop(int listen_sock)
 		}
 	}
 
-
-
 	while (1)
 	{
 		//4. Start calling poll and wait for the file descriptor set of interest to be ready
@@ -101,8 +97,8 @@ void Server::startLoop(int listen_sock)
 						int i = 0;
 						for (; i < num; i++)
 						{
-							if (fd_list[i].fd == -1)//Place the first value
-								// in the array at - 1
+							if (fd_list[i].fd ==
+								-1)//Place the first value in the array at - 1
 								break;
 						}
 						if (i < num)
@@ -114,17 +110,17 @@ void Server::startLoop(int listen_sock)
 							close(new_sock);
 						}
 						User *new_user = new User(fd_list[i].fd);
+						this->getPassword().empty() ? new_user->setAuthorized(true) : new_user->setAuthorized(false);
 						std::cout << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
 						_users.push_back(new_user);
-						std::cout << "Created " << i <<  " user" << std::endl;
-						for (size_t i = 0; i < _users.size(); ++i) {
-							std::cout << "fd:  " <<
-							_users[i]->getFd()
-							<< std::endl;
-						}
-
+//						std::cout << "Created " << i <<  " user" << std::endl;
+//						for (size_t i = 0; i < _users.size(); ++i) {
+//							std::cout << "fd:  " <<
+//							_users[i]->getFd()
+//							<< std::endl;
+//						}
 						continue;
 					}
 
@@ -146,10 +142,22 @@ void Server::startLoop(int listen_sock)
 						} else
 						{
 							buf[s] = 0;
-							handleRequest(buf);
-							std::cout << "client fd = " << fd_list[i].fd << " "
-													  "" <<
-							buf << std::endl;
+							User *user = 0;
+							for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
+								if ((*it)->getFd() == fd_list[i].fd) {
+									user = *(it);
+									break;
+								}
+							}
+							if (!user)
+							{
+								std::cerr << "user fd undefined" << std::endl;
+								throw (FtException());
+							}
+							handleRequest(buf, *(user));
+//							std::cout << "client fd = " << fd_list[i].fd << " "
+//													  "" <<
+//							buf << std::endl;
 						}
 					}
 				}
@@ -175,43 +183,4 @@ Server &Server::operator=(const Server &other) {
 	this->_port = other._port;
 	this->_password = other._password;
 	return(*this);
-}
-
-void	executeCommand(Command const &command){
-	//TODO
-	std::cout << "test" << std::endl;
-#ifdef MORE_INFO
-	std::cout << CYAN << "executing " << command << RESET << std::endl;
-#endif
-}
-
-void Server::handleRequest(char *request) {
-	std::vector<Command> 	commands;
-	std::vector<User> 		users;
-	commands = parseRequest(std::string(request));
-	if (commands.empty()) {
-		#ifdef MORE_INFO
-		std::cout << CYAN "|unrecognized request: " << request << RESET << std::endl;
-		#endif
-	}
-	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
-		executeCommand(*it);
-	}
-}
-
-std::vector<Command> Server::parseRequest(std::string const &request) {
-	std::vector<Command>	commands;
-
-	std::string				strRequest;
-
-	strRequest = std::string(request);
-	size_t pos = 0;
-	std::string commandBody;
-	while ((pos = strRequest.find("\r\n")) != std::string::npos) {
-		commandBody = strRequest.substr(0, pos);
-		std::cout << commandBody << std::endl;
-		commands.push_back(Command(commandBody));
-		strRequest = strRequest.erase(0, pos + 2);
-	}
-	return commands;
 }

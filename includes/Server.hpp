@@ -18,6 +18,11 @@
 #include <fcntl.h>
 #include <iostream>
 
+typedef struct Response {
+	int			code;
+	std::string	body;
+}	Response;
+
 class Server {
 public:
 	Server(int, std::string);
@@ -33,10 +38,17 @@ private:
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
+	std::vector<Channel *>	_channels;
 
-	std::vector<Channel *> 	_channels;
-	void						handleRequest(char *);
-	static std::vector<Command>	parseRequest(std::string const &request);
+	void handleRequest(char *request, User &user);
+	static std::vector<Command>	parseRequest(std::string const &request, User &);
+
+	//request handling implementations
+	void						executeCommand(Command const &);
+	void						handleUser(Command const &);
+	void						handlePassword(Command const &);
+	void						handleSetNick(Command const &);
+	void						handlePrivateMessage(Command const &);
 
 	Server();
 };

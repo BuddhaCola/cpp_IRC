@@ -5,18 +5,18 @@
 
 void validateArguments(int ac, char **av) {
 	if (ac < 2) {
-		std::cout << "Usage: ./ircserv <port> <password>" << std::endl;
+		std::cout << "Usage: ./ircserv <port> <handlePassword>" << std::endl;
 		std::cout << "too low arguments!" << std::endl;
 		exit(-1);
 	}
 	if (ac > 2) {
 		if (ac > 3) {
-			std::cout << "Usage: ./ircserv <port> <password>" << std::endl;
+			std::cout << "Usage: ./ircserv <port> <handlePassword>" << std::endl;
 			std::cerr << "Too many arguments!" << std::endl;
 			exit(-1);
 		}
 		if (strlen(av[2]) == 0) {
-			std::cerr << "password can't be an empty string" << std::endl;
+			std::cerr << "handlePassword can't be an empty string" << std::endl;
 			exit(-1);
 		}
 	}

@@ -11,7 +11,7 @@ std::string command_to_name(CommandEnum command)
 	return (command < NumCommands) ? CommandNames[command] : "";
 }
 
-Command::Command(const std::string& string) : body(string) {
+Command::Command(const std::string &string, User &user) : body(string), user(user) {
 	std::string	verb;
 	size_t		delimeter = string.find(' ');
 	verb = string.substr(0, delimeter);
@@ -30,14 +30,14 @@ Command &Command::operator=(const Command &other) {
 	return (*this);
 }
 
-Command::Command(const Command &other) : type(other.type), body(other.body) {
+Command::Command(const Command &other) : type(other.getType()), body(other.getBody()), user(other.getUser()) {
 }
 
-CommandEnum Command::getType() {
+CommandEnum Command::getType() const {
 	return this->type;
 }
 
-std::string Command::getBody() {
+std::string Command::getBody() const {
 	return this->body;
 }
 
@@ -49,4 +49,8 @@ std::ostream &Command::operator<<(std::ostream &os) {
 std::ostream &operator<<(std::ostream &os, const Command &command) {
 	os << "command: " << command_to_name(command.type) << "\nbody: " << command.body;
 	return os;
+}
+
+User &Command::getUser() const {
+	return this->user;
 }

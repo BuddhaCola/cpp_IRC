@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include "User.hpp"
 
 #define COMMANDS(X) \
 X(PASS),\
@@ -32,18 +33,20 @@ static const std::string CommandNames[] = { COMMANDS(X) };
 
 class Command {
 public:
-	Command(const std::string& string);
-	CommandEnum getType();
-	std::string	getBody();
+	Command(const std::string& string, User &);
+	CommandEnum getType() const;
+	std::string	getBody() const;
+	User		&getUser() const;
 
 	~Command();
-	Command &	operator=	(const Command &other);
-	std::ostream& operator<<(std::ostream& os);
-	friend std::ostream& operator<< (std::ostream& out, const Command& point);
+	Command &	operator=	(const Command &);
+	std::ostream& operator<<(std::ostream &);
+	friend std::ostream& operator<< (std::ostream&, const Command&);
 	Command(Command const &);
 private:
 	CommandEnum type;
 	std::string	body;
+	User	&user;
 };
 
 #endif //MY_IRC_COMMAND_HPP
