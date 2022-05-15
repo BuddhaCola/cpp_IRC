@@ -26,3 +26,11 @@ User &User::operator=(const User &other) {
 	this->_nick = other.getNick();
 	return (*this);
 }
+
+bool User::isAuthorized() const {
+	return _authorized;
+}
+
+void User::setAuthorized(bool authorized) {
+	_authorized = authorized;
+}
