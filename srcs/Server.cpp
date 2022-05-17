@@ -115,6 +115,9 @@ void Server::startLoop(int listen_sock)
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
 						_users.push_back(new_user);
+
+
+
 //						std::cout << "Created " << i <<  " user" << std::endl;
 //						for (size_t i = 0; i < _users.size(); ++i) {
 //							std::cout << "fd:  " <<

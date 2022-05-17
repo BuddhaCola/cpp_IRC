@@ -11,11 +11,14 @@ public:
 	int 		getFd() const;
 	std::string	getNick() const;
 	void 		setNick(std::string nick);
+	bool		isAuthorized() const;
+	void		setAuthorized(bool authorized);
 	User & operator= (const User &other);
 	~User();
 private:
-	int 		_fd;
+	int			_fd;
 	std::string	_nick;
+	bool		_authorized;
 };
 
 #endif //MY_IRC_USER_HPP

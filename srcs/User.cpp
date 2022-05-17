@@ -1,9 +1,9 @@
 #include "../includes/User.hpp"
 
-User::User() : _fd(-1), _nick(std::string()) {
+User::User() : _fd(-1), _nick(std::string()), _authorized(false) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()) {
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _authorized(false){
 }
 
 User::~User() {

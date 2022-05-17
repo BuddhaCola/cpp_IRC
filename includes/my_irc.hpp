@@ -15,4 +15,9 @@ public:
 	}
 };
 
+bool	validateString(std::string &);
+std::string					trim(const std::string &);
+std::string					getmessage(std::string &);
+std::vector<std::string>	splitString(std::string);
+
 #endif //MY_IRC_MY_IRC_HPP
