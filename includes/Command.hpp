@@ -33,10 +33,13 @@ static const std::string CommandNames[] = { COMMANDS(X) };
 
 class Command {
 public:
-	Command(const std::string& string, User &);
-	CommandEnum getType() const;
-	std::string	getBody() const;
-	User		&getUser() const;
+	Command(std::string &string, User &user);
+	CommandEnum 					getType() const;
+	std::string						getTextPart() const;
+	User							&getUser() const;
+	const std::vector<std::string>	&getArguments() const;
+	const std::string				&getArgument(int) const;
+	void							setArguments(const std::vector<std::string> &arguments);
 
 	~Command();
 	Command &	operator=	(const Command &);
@@ -44,9 +47,10 @@ public:
 	friend std::ostream& operator<< (std::ostream&, const Command&);
 	Command(Command const &);
 private:
-	CommandEnum type;
-	std::string	body;
-	User	&user;
+	CommandEnum 				_type;
+	std::string					*_textPart;
+	std::vector<std::string>	_arguments;
+	User						&_user;
 };
 
 #endif //MY_IRC_COMMAND_HPP

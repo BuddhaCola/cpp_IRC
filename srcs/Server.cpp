@@ -17,7 +17,7 @@ int Server::creat_listen_socket(int port)
 
 	struct sockaddr_in local;
 	local.sin_family = AF_INET;
-	local.sin_addr.s_addr = htonl(INADDR_ANY);// Address of any type
+	local.sin_addr.s_addr = htonl(INADDR_ANY);// Address of any _type
 	local.sin_port = htons(port);
 
 	if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )
@@ -115,7 +115,7 @@ void Server::startLoop(int listen_sock)
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
 						_users.push_back(new_user);
-//						std::cout << "Created " << i <<  " user" << std::endl;
+//						std::cout << "Created " << i <<  " _user" << std::endl;
 //						for (size_t i = 0; i < _users.size(); ++i) {
 //							std::cout << "fd:  " <<
 //							_users[i]->getFd()
@@ -151,13 +151,10 @@ void Server::startLoop(int listen_sock)
 							}
 							if (!user)
 							{
-								std::cerr << "user fd undefined" << std::endl;
+								std::cerr << "_user fd undefined" << std::endl;
 								throw (FtException());
 							}
 							handleRequest(buf, *(user));
-//							std::cout << "client fd = " << fd_list[i].fd << " "
-//													  "" <<
-//							buf << std::endl;
 						}
 					}
 				}

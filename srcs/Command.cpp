@@ -11,46 +11,78 @@ std::string command_to_name(CommandEnum command)
 	return (command < NumCommands) ? CommandNames[command] : "";
 }
 
-Command::Command(const std::string &string, User &user) : body(string), user(user) {
-	std::string	verb;
-	size_t		delimeter = string.find(' ');
-	verb = string.substr(0, delimeter);
-	if (verb.empty())
-		throw (FtException());
-	type = verbToCommand(verb);
-	body = string.substr(delimeter, string.length());
+Command::Command(std::string &string, User &user) : _user(user) {
+	std::string				current;
+
+	std::stringstream		stream(string);
+	stream >> current; //TODO test
+	if (current.empty()) { //empty command
+		return;
+	}
+	_type = verbToCommand(current);
+	while (stream >> current) {
+		if (current.at(0) == ':') {
+			std::getline(stream, current);
+			_arguments.push_back(current.substr(1, current.length()));
+			_textPart = &_arguments.at(_arguments.size() - 1);
+			break;
+		}
+		_arguments.push_back(std::string(current));
+	}
 }
 
 Command::~Command() {
 }
 
 Command &Command::operator=(const Command &other) {
-	this->body = other.body;
-	this->type = other.type;
+	this->_type = other._type;
+	this->_arguments = other._arguments;
+	this->_textPart = &_arguments.at(_arguments.size() - 1); //bullshit
 	return (*this);
 }
 
-Command::Command(const Command &other) : type(other.getType()), body(other.getBody()), user(other.getUser()) {
+Command::Command(const Command &other) : _type(other.getType()), _user(other.getUser()), _arguments(other._arguments) {
+	this->_textPart = &_arguments.at(_arguments.size() - 1); //bullshit
 }
 
 CommandEnum Command::getType() const {
-	return this->type;
+	return this->_type;
 }
 
-std::string Command::getBody() const {
-	return this->body;
+std::string Command::getTextPart() const {
+	return *this->_textPart;
 }
 
 std::ostream &Command::operator<<(std::ostream &os) {
-	os << "command: " << command_to_name(this->type) << "\nbody: " << this->body;
+	os << "Command: " << command_to_name(this->_type);
+	for (std::vector<std::string>::iterator it = this->_arguments.begin(); it != this->_arguments.end(); ++it) {
+		os << '\n' << (*it);
+	}
 	return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const Command &command) {
-	os << "command: " << command_to_name(command.type) << "\nbody: " << command.body;
+	std::vector<std::string> const &arguments = command.getArguments();
+	int i = 0;
+	os << "command: " << command_to_name(command._type) << "\nbody: " << command._textPart;
+	for (int j = 0; j < arguments.size(); ++j) {
+		os << '\n' << arguments.at(j);
+	}
 	return os;
 }
 
 User &Command::getUser() const {
-	return this->user;
+	return this->_user;
+}
+
+const std::vector<std::string> &Command::getArguments() const {
+	return _arguments;
+}
+
+const std::string &Command::getArgument(int i) const {
+	return _arguments.at(i);
+}
+
+void Command::setArguments(const std::vector<std::string> &arguments) {
+	_arguments = arguments;
 }

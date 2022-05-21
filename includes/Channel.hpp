@@ -10,7 +10,7 @@ public:
 	~Channel();
 	Channel();
 private:
-	std::vector<User *> _users;
+	std::vector<User *>	_users;
 	Channel & operator= (const Channel &other);
 };
 #endif //MY_IRC_CHANNEL_HPP

@@ -6,13 +6,13 @@
 void validateArguments(int ac, char **av) {
 	if (ac < 2) {
 		std::cout << "Usage: ./ircserv <port> <handlePassword>" << std::endl;
-		std::cout << "too low arguments!" << std::endl;
+		std::cout << "too low _arguments!" << std::endl;
 		exit(-1);
 	}
 	if (ac > 2) {
 		if (ac > 3) {
 			std::cout << "Usage: ./ircserv <port> <handlePassword>" << std::endl;
-			std::cerr << "Too many arguments!" << std::endl;
+			std::cerr << "Too many _arguments!" << std::endl;
 			exit(-1);
 		}
 		if (strlen(av[2]) == 0) {

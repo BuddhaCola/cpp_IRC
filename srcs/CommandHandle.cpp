@@ -26,7 +26,7 @@ void	Server::executeCommand(Command const &command){
 	}
 	if (!command.getUser().isAuthorized())
 	{
-		std::cout << "unauthorized request from user fd |" << command.getUser().getFd() << "| nick |" << command.getUser().getNick() << "|\n" << CommandNames[command.getType()] << std::endl;
+		std::cout << "unauthorized request from _user fd |" << command.getUser().getFd() << "| nick |" << command.getUser().getNick() << "|\n" << CommandNames[command.getType()] << std::endl;
 	}
 	else {
 		//not allowed for unauthorized users
@@ -56,7 +56,7 @@ void	Server::executeCommand(Command const &command){
 				std::cerr << "WHO method is not implemented" << std::endl;
 				break;
 			default:
-				std::cout << "undefined command" << command.getBody() << std::endl;
+				std::cout << "undefined command" << command.getTextPart() << std::endl;
 		}
 	}
 }
@@ -65,10 +65,7 @@ void	Server::executeCommand(Command const &command){
 void printRequest(char *request, User &user) {
 	std::stringstream out;
 
-	out << "|USER ";
-	if (!user.getNick().empty())
-		out << user.getNick() << ' ';
-	out << "fd " << user.getFd();
+	out << user << ' ';
 	out << "\n\"" << request << '\"' << std::endl;
 	std::cout << out.str() << std::endl;
 }
@@ -90,42 +87,54 @@ void Server::handleRequest(char *request, User &user) {
 
 std::vector<Command> Server::parseRequest(std::string const &request, User &user) {
 	std::vector<Command>	commands;
-	std::string				strRequest;
-
-	strRequest = std::string(request);
-	size_t pos = 0;
-	std::string commandBody;
-	while ((pos = strRequest.find("\r\n")) != std::string::npos) {
-		commandBody = strRequest.substr(0, pos);
-//		std::cout << commandBody << std::endl;
-		commands.push_back(Command(commandBody, user));
-		strRequest = strRequest.erase(0, pos + 2);
+	std::stringstream		stream(request);
+	std::string				current;
+	while (std::getline(stream, current)) {
+		if (current.at(current.size() - 1) == '\r') {
+			current = current.substr(0, current.size() - 1);
+		}
+		commands.push_back(Command(current, user));
 	}
 	return commands;
 }
 
+//https://datatracker.ietf.org/doc/html/rfc2812#section-5.2
 void Server::handlePrivateMessage(const Command &command) {
 #ifdef MORE_INFO
 	std::cout << CYAN << "handlePrivateMessage method invoked" << RESET << std::endl;
 #endif
-	std::string body = command.getBody();
+	std::string message = command.getTextPart();
 	std::string reciverNick;
 	User		*reciver;
 
-	reciverNick = "";
+	reciverNick = command.getArgument(0); //???
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it)->getNick() == reciverNick) {
 			reciver = (*it);
 			break;
 		}
 	}
+	if (reciver)
+		write(reciver->getFd(), message.c_str(), message.size());
+	else
+	{
+		//     401    ERR_NOSUCHNICK
+		//              "<nickname> :No such nick/channel"
+	}
 }
 
+//https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.1
 void Server::handlePassword(const Command &command) {
 #ifdef MORE_INFO
 	std::cout << CYAN << "handlePassword method invoked" << RESET << std::endl;
 #endif
-	std::string	userInput = trim(command.getBody());
+	if (command.getArguments().size() != 1) {
+		std::cout << "something went wrong" << std::endl; //TODO errorhandle
+	}
+	if (command.getTextPart().empty()) {
+		std::cout << "something went wrong" << std::endl; //TODO errorhandle
+	}
+	std::string	userInput = trim(command.getTextPart());
 	User	&user = command.getUser();
 
 	if (!this->_password.empty()) {
@@ -134,37 +143,47 @@ void Server::handlePassword(const Command &command) {
 			return;
 		}
 		else {
-			//do something
+			//do something //TODO
 		}
 	}
-	return;
 }
 
+//https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.2
 void Server::handleSetNick(const Command &command) {
 #ifdef MORE_INFO
 	std::cout << CYAN << "handleSetNick method invoked" << RESET << std::endl;
 #endif
-	User user = command.getUser();
-	std::string	nickToSet = trim(command.getBody());
+	if (command.getArguments().size() != 1)
+		std::cout << "something went wrong" << std::endl; //TODO errorhandle
+	User &user = command.getUser();
+	std::string	nickToSet = trim(command.getArgument(0));
+	nickToSet = toLowercase(nickToSet);
 	if (!validateString(nickToSet))
 		return;
 	user.setNick(nickToSet);
 #ifdef MORE_INFO
-	std::cout << CYAN << "user fd " << user.getFd() << " has nick set to |" << user.getNick() << "|" << RESET << std::endl;
+	std::cout << CYAN << "_user fd " << user.getFd() << " has nick set to |" << user.getNick() << "|" << RESET << std::endl;
 #endif
 	return;
 }
 
+//https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.3
+//Command: USER
+//Parameters: <user> <mode> <unused> <realname>
+// Numeric Replies:
+//           ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 void Server::handleUser(const Command &command) {
-	int							fd = command.getUser().getFd();
-	std::vector<std::string>	args = splitString(command.getBody());
+	User	&user = command.getUser();
+	int		fd = user.getFd();
+//	int		mode = stoi(command.getArgument(1)); //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.5
 
-	std::stringstream out;
-	out << "splitted USER command arguments:\n";
-	int i = 0;
-	for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); ++it) {
-		out << '|' << i++ << "|" << (*it) << '\n';
+	if (command.getArguments().size() < 4) {
+
 	}
-	std::cout << out.str() << std::endl;
-	//"001    RPL_WELCOME\n\"Welcome to the Internet Relay Network\n<nick>!<user>@<host>\""
+	user.setUsername(command.getArgument(0));
+	user.setRealname(command.getArgument(3));
+
+	//затычка
+	std::string mes_376 = ":IRC 376 \r\n";
+	write(fd, mes_376.c_str(), mes_376.length());
 }

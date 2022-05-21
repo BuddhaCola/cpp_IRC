@@ -29,18 +29,28 @@ std::string	getmessage(std::string &string) {
 	return (std::string(string.substr(string.find(':'), string.length())));
 }
 
-// |Username * localhost :Realname
+// " Username * localhost :Realname" "" " "
 std::vector<std::string> splitString(std::string string) {
 	const char*	whitespace = " \t\n\r\f\v";
 	std::vector<std::string> vector;
 // бля, я туплю. Потом доделаю.
-//	size_t found = 0;
-//	size_t current = string.find_first_not_of(whitespace);
-//
-//	while (current != std::string::npos) {
-//		found = string.find_first_of(whitespace);
-//		vector.push_back(string.substr(current, found));
-//	}
+	size_t toCut = string.find_first_not_of(whitespace);
+
+	while (toCut != std::string::npos) {
+		size_t current = 0;
+		toCut = string.find_first_of(whitespace, current);
+		vector.push_back(string.substr(current, toCut));
+		string = string.substr(toCut, string.length());
+//		current = 0;
+	}
 	return vector;
+}
+
+std::string toLowercase(std::string &original) {
+	std::string lowercased;
+	for (std::vector<char>::iterator it = original.begin(); it != original.end(); ++it) {
+		lowercased += std::tolower(*it);
+	}
+	return lowercased;
 }
 
