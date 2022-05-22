@@ -3,12 +3,12 @@
 #include "../includes/my_irc.hpp"
 
 CommandEnum verbToCommand(std::string &verb) {
-	return CommandEnum(std::find(CommandNames, CommandNames + NumCommands,  verb) - CommandNames);
+	return CommandEnum(std::find(CommandNames, CommandNames + UNDEFINED, verb) - CommandNames);
 }
 
 std::string command_to_name(CommandEnum command)
 {
-	return (command < NumCommands) ? CommandNames[command] : "";
+	return (command < UNDEFINED) ? CommandNames[command] : "";
 }
 
 Command::Command(std::string &string, User &user) : _user(user) {
@@ -20,6 +20,9 @@ Command::Command(std::string &string, User &user) : _user(user) {
 		return;
 	}
 	_type = verbToCommand(current);
+	if (_type == CommandEnum::UNDEFINED) {
+		throw FtException();
+	}
 	while (stream >> current) {
 		if (current.at(0) == ':') {
 			_arguments.push_back(std::string(current, 1));
@@ -37,12 +40,16 @@ Command::~Command() {
 Command &Command::operator=(const Command &other) {
 	this->_type = other._type;
 	this->_arguments = other._arguments;
-	this->_textPart = &_arguments.at(_arguments.size() - 1); //bullshit
+	if (other._textPart) {
+		_textPart = &_arguments.at(_arguments.size() - 1);
+	}
 	return (*this);
 }
 
 Command::Command(const Command &other) : _type(other.getType()), _user(other.getUser()), _arguments(other._arguments) {
-	this->_textPart = &_arguments.at(_arguments.size() - 1); //bullshit
+	if (other._textPart) {
+		_textPart = &_arguments.at(_arguments.size() - 1);
+	}
 }
 
 CommandEnum Command::getType() const {
@@ -53,21 +60,15 @@ std::string Command::getTextPart() const {
 	return *this->_textPart;
 }
 
-std::ostream &Command::operator<<(std::ostream &os) {
-	os << "Command: " << command_to_name(this->_type);
-	for (std::vector<std::string>::iterator it = this->_arguments.begin(); it != this->_arguments.end(); ++it) {
-		os << '\n' << (*it);
-	}
+std::ostream &Command::operator <<(std::ostream &os) const {
+	os << "Command: " << this->typeToString();
+	os << argumentsToString();
 	return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const Command &command) {
-	std::vector<std::string> const &arguments = command.getArguments();
-	int i = 0;
-	os << "command: " << command_to_name(command._type) << "\nbody: " << command._textPart;
-	for (int j = 0; j < arguments.size(); ++j) {
-		os << '\n' << arguments.at(j);
-	}
+	os << "Command: " << command.typeToString();
+	os << command.argumentsToString();
 	return os;
 }
 
@@ -91,4 +92,18 @@ void Command::parseTextPart(std::stringstream &stream) {
 	std::string textPart;
 	if (std::getline(stream, textPart))
 		*_textPart = _textPart->append(textPart);
+}
+
+std::string Command::typeToString() const {
+	return CommandNames[_type];
+}
+
+std::string Command::argumentsToString() const {
+	std::stringstream os;
+	for (std::vector<std::string const>::iterator it = this->_arguments.begin(); it != this->_arguments.end(); ++it) {
+		os << (*it);
+		if (it + 1 != this->_arguments.end())
+			os << '\n';
+	}
+	return os.str();
 }
