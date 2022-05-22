@@ -1,9 +1,10 @@
 #include "../includes/User.hpp"
+#include <sstream>
 
-User::User() : _fd(-1), _nick(std::string()), _authorized(false) {
+User::User() : _fd(-1), _nick(std::string()) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _authorized(false){
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()) {
 }
 
 User::~User() {
@@ -30,7 +31,35 @@ User &User::operator=(const User &other) {
 bool User::isAuthorized() const {
 	return _authorized;
 }
-
 void User::setAuthorized(bool authorized) {
 	_authorized = authorized;
+}
+std::ostream &User::operator<<(std::ostream &os) {
+	os << "fd: " << _fd;
+	if (!_nick.empty())
+		os << " nick " << _nick;
+	return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const User &user) {
+	os << "fd " << user.getFd();
+	if (!user.getNick().empty())
+		os << " nick " << user.getNick();
+	return os;
+}
+
+const std::string &User::getUsername() const {
+	return _username;
+}
+
+void User::setUsername(const std::string &username) {
+	_username = username;
+}
+
+const std::string &User::getRealname() const {
+	return _realname;
+}
+
+void User::setRealname(const std::string &realname) {
+	_realname = realname;
 }

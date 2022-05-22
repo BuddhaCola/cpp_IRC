@@ -30,7 +30,6 @@ public:
 	void						startLoop(int);
 	std::string					getPassword() const;
 	int 						getPort() const;
-	User*						getUser(int);
 	Server & operator= (const Server &other);
 
 	~Server();
