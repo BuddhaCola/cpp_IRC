@@ -89,6 +89,7 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 	std::vector<Command>	commands;
 	std::stringstream		stream(request);
 	std::string				current;
+
 	while (std::getline(stream, current)) {
 		if (current.at(current.size() - 1) == '\r') {
 			current = current.substr(0, current.size() - 1);
@@ -104,10 +105,9 @@ void Server::handlePrivateMessage(const Command &command) {
 	std::cout << CYAN << "handlePrivateMessage method invoked" << RESET << std::endl;
 #endif
 	std::string message = command.getTextPart();
-	std::string reciverNick;
-	User		*reciver;
+	std::string reciverNick(command.getArgument(0)); //???;
+	User		*reciver = 0;
 
-	reciverNick = command.getArgument(0); //???
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it)->getNick() == reciverNick) {
 			reciver = (*it);

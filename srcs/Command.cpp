@@ -22,9 +22,9 @@ Command::Command(std::string &string, User &user) : _user(user) {
 	_type = verbToCommand(current);
 	while (stream >> current) {
 		if (current.at(0) == ':') {
-			std::getline(stream, current);
-			_arguments.push_back(current.substr(1, current.length()));
+			_arguments.push_back(std::string(current, 1));
 			_textPart = &_arguments.at(_arguments.size() - 1);
+			parseTextPart(stream);
 			break;
 		}
 		_arguments.push_back(std::string(current));
@@ -85,4 +85,10 @@ const std::string &Command::getArgument(int i) const {
 
 void Command::setArguments(const std::vector<std::string> &arguments) {
 	_arguments = arguments;
+}
+
+void Command::parseTextPart(std::stringstream &stream) {
+	std::string textPart;
+	if (std::getline(stream, textPart))
+		*_textPart = _textPart->append(textPart);
 }

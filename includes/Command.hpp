@@ -51,6 +51,8 @@ private:
 	std::string					*_textPart;
 	std::vector<std::string>	_arguments;
 	User						&_user;
+
+	void 						parseTextPart(std::stringstream &);
 };
 
 #endif //MY_IRC_COMMAND_HPP
