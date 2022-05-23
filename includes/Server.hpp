@@ -26,8 +26,11 @@ typedef struct Response {
 class Server {
 public:
 	Server(int, std::string);
-	int 						creat_listen_socket(int);
-	void						startLoop(int);
+	int 						create_new_socket();
+	void 						creat_listen_socket(int);
+	void						startLoop();
+	void 						poll_procces();
+	void 						addNewUser(int fd);
 	std::string					getPassword() const;
 	int 						getPort() const;
 	Server & operator= (const Server &other);
@@ -35,10 +38,14 @@ public:
 	~Server();
 private:
 
+	int 					_num;
 	int						_port;
+	int 					_listen_socket;
 	std::string				_password;
 	std::vector<User *>		_users;
 	std::vector<Channel *>	_channels;
+	struct pollfd 			_fd_list[1024];
+	struct sockaddr_in 		_client;
 
 	void handleRequest(char *request, User &user);
 	static std::vector<Command>	parseRequest(std::string const &request, User &);
