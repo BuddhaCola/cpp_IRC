@@ -13,14 +13,15 @@ std::string command_to_name(CommandEnum command)
 
 Command::Command(std::string &string, User &user) : _user(user) {
 	std::string				current;
-
 	std::stringstream		stream(string);
+
+	_textPart = 0;
 	stream >> current; //TODO test
 	if (current.empty()) { //empty command
 		return;
 	}
 	_type = verbToCommand(current);
-	if (_type == CommandEnum::UNDEFINED) {
+	if (_type == UNDEFINED) {
 		throw FtException();
 	}
 	while (stream >> current) {

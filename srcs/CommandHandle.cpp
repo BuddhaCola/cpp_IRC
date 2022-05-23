@@ -1,6 +1,8 @@
+#include <sstream>
 #include "../includes/Server.hpp"
 
 void	Server::executeCommand(Command const &command){
+	std::stringstream logStream;
 	//allowed for unauthorized users
 	switch (command.getType()) {
 		case PASS:
@@ -13,20 +15,23 @@ void	Server::executeCommand(Command const &command){
 			handleSetNick(command);
 			return;
 		case PING:
-			std::cerr << "PING method is not implemented" << std::endl;
+			handlePing(command);
 			return;
 		case PONG:
-			std::cerr << "PONG method is not implemented" << std::endl;
+			logStream << "PONG method is not implemented" << std::endl;
+			logMessage(logStream, DEV);
 			return;
 		case QUIT:
-			std::cerr << "QUIT method is not implemented" << std::endl;
+			logStream << "QUIT method is not implemented" << std::endl;
+			logMessage(logStream, DEV);
 			return;
 		default:
 			break;
 	}
 	if (!command.getUser().isAuthorized())
 	{
-		std::cout << "unauthorized request from _user fd |" << command.getUser().getFd() << "| nick |" << command.getUser().getNick() << "|\n" << command.typeToString() << std::endl;
+		logStream << "unauthorized request from " << command.getUser();
+		logMessage(logStream, ERROR);
 	}
 	else {
 		//not allowed for unauthorized users
@@ -35,25 +40,32 @@ void	Server::executeCommand(Command const &command){
 				handlePrivateMessage(command);
 				break;
 			case NOTICE:
-				std::cerr << "NOTICE method is not implemented" << std::endl;
+				logStream << "NOTICE method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			case JOIN:
-				std::cerr << "JOIN method is not implemented" << std::endl;
+				logStream << "JOIN method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			case OPER:
-				std::cerr << "OPER method is not implemented" << std::endl;
+				logStream << "OPER method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			case KILL:
-				std::cerr << "KILL method is not implemented" << std::endl;
+				logStream << "KILL method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			case KICK:
-				std::cerr << "KICK method is not implemented" << std::endl;
+				logStream << "KICK method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			case LIST:
-				std::cerr << "LIST method is not implemented" << std::endl;
+				logStream << "LIST method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			case WHO:
-				std::cerr << "WHO method is not implemented" << std::endl;
+				logStream << "WHO method is not implemented" << std::endl;
+				logMessage(logStream, DEV);
 				break;
 			default:
 				break;
@@ -61,19 +73,10 @@ void	Server::executeCommand(Command const &command){
 	}
 }
 
-#include <sstream>
-void printRequest(char *request, User &user) {
-	std::stringstream out;
-
-	out << currentTime() << user << ' ';
-	out << "\n\"" << request << '\"' << std::endl;
-	std::cout << out.str() << std::endl;
-}
-
 void Server::handleRequest(char *request, User &user) {
 	std::vector<Command> commands;
 
-	printRequest(request, user);
+	logUserMessage(std::string(request), user, IN);
 	commands = parseRequest(std::string(request), user);
 	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
 		executeCommand(*it);
@@ -83,17 +86,21 @@ void Server::handleRequest(char *request, User &user) {
 std::vector<Command> Server::parseRequest(std::string const &request, User &user) {
 	std::vector<Command>	commands;
 	std::stringstream		stream(request);
+	std::stringstream		logStream;
 	std::string				current;
 
 	while (std::getline(stream, current)) {
-		if (current.at(current.size() - 1) == '\r') {
-			current = current.substr(0, current.size() - 1);
-		}
 		try {
+			if (current.size() <= 1)
+				throw FtException();
+			if (current.at(current.size() - 1) == '\r') {
+				current = current.substr(0, current.size() - 1);
+			}
 			commands.push_back(Command(current, user));
 		}
 		catch (FtException &e) {
-				std::cerr << "unrecognized request: \"" << current << '\"' << std::endl;
+				logStream << "unrecognized request: \"" << current << '\"' << std::endl;
+				logMessage(logStream, ERROR);
 			}
 		}
 		return commands;
@@ -101,9 +108,6 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-5.2
 void Server::handlePrivateMessage(const Command &command) {
-#ifdef MORE_INFO
-	std::cout << CYAN << "handlePrivateMessage method invoked" << RESET << std::endl;
-#endif
 	std::string message = command.getTextPart();
 	std::string reciverNick(command.getArgument(0)); //???;
 	User		*reciver = 0;
@@ -125,14 +129,15 @@ void Server::handlePrivateMessage(const Command &command) {
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.1
 void Server::handlePassword(const Command &command) {
-#ifdef MORE_INFO
-	std::cout << CYAN << "handlePassword method invoked" << RESET << std::endl;
-#endif
+	std::stringstream logStream;
+
 	if (command.getArguments().size() != 1) {
-		std::cout << "something went wrong" << std::endl; //TODO errorhandle
+			logStream << "something went wrong" << std::endl; //TODO errorhandle
+			logMessage(logStream, ERROR);
 	}
 	if (command.getTextPart().empty()) {
-		std::cout << "something went wrong" << std::endl; //TODO errorhandle
+			logStream << "something went wrong" << std::endl; //TODO errorhandle
+			logMessage(logStream, ERROR);
 	}
 	std::string	userInput = trim(command.getTextPart());
 	User	&user = command.getUser();
@@ -150,20 +155,23 @@ void Server::handlePassword(const Command &command) {
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.2
 void Server::handleSetNick(const Command &command) {
-#ifdef MORE_INFO
-	std::cout << CYAN << "handleSetNick method invoked" << RESET << std::endl;
-#endif
-	if (command.getArguments().size() != 1)
-		std::cout << "something went wrong" << std::endl; //TODO errorhandle
+	std::stringstream logStream;
+
+	if (command.getArguments().size() != 1) {
+		logStream << "something went wrong" << std::endl; //TODO errorhandle
+		logMessage(logStream, ERROR);
+	}
 	User &user = command.getUser();
 	std::string	nickToSet = trim(command.getArgument(0));
 	nickToSet = toLowercase(nickToSet);
-	if (!validateString(nickToSet))
-		return;
-	user.setNick(nickToSet);
-#ifdef MORE_INFO
-	std::cout << CYAN << "_user fd " << user.getFd() << " has nick set to |" << user.getNick() << "|" << RESET << std::endl;
-#endif
+	if (validateString(nickToSet))
+		user.setNick(nickToSet);
+	else {
+		//errorhandle
+		logStream << "FAILED ";
+	}
+	logStream << "set nick user " << user;
+	logMessage(logStream, INFO);
 	return;
 }
 
@@ -186,4 +194,14 @@ void Server::handleUser(const Command &command) {
 	//затычка
 	std::string mes_376 = ":IRC 376 \r\n";
 	write(fd, mes_376.c_str(), mes_376.length());
+}
+
+void Server::handlePing(const Command &command) {
+	std::string reply;
+	User &user = command.getUser();
+	reply = "PONG ";
+	if (!command.getArguments().empty())
+		reply = reply.append(command.getArgument(0));
+	write(user.getFd(), reply.c_str(), reply.size());
+	logUserMessage(reply, command.getUser(), OUT);
 }

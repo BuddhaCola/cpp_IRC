@@ -38,7 +38,14 @@ std::string toLowercase(std::string &original) {
 }
 
 std::string	currentTime() {
-	std::time_t result = std::time(nullptr);
-	return std::string(std::asctime(std::localtime(&result)));
+	time_t curr_time;
+	tm * curr_tm;
+	char date_string[100];
+
+	time(&curr_time);
+	curr_tm = localtime(&curr_time);
+
+	strftime(date_string, 50, "%Y-%m-%d %T", curr_tm);
+	return date_string;
 }
 

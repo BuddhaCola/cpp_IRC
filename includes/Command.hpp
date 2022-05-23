@@ -50,7 +50,7 @@ public:
 	Command(Command const &);
 private:
 	CommandEnum 				_type;
-	std::string					*_textPart = 0;
+	std::string					*_textPart;
 	std::vector<std::string>	_arguments;
 	User						&_user;
 

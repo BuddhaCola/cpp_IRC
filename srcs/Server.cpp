@@ -1,3 +1,4 @@
+#include <sstream>
 #include "../includes/Server.hpp"
 
 Server::Server(int port, std::string password) : _port(port), _password(password){
@@ -28,12 +29,20 @@ int Server::creat_listen_socket(int port)
 	return sock;
 }
 
+void Server::StartLogMessage() {
+	std::stringstream logMessageStream;
+
+	logMessageStream << "Starting server on port " << this->_port << ' ';
+	logMessageStream << "Password is " << (getPassword().empty() ? "not set" :
+										   ("set to |" + getPassword()) + "|")
+					 << std::endl;
+	logMessage(logMessageStream, INFO);
+}
+
 void Server::startLoop(int listen_sock)
 {
-	std::cout << "Starting server on port " << this->_port << std::endl;
-	std::cout << "Password is " << (getPassword().empty() ? "not set" :
-									("set to |" + getPassword()) + "|")
-			  << std::endl;
+	std::stringstream logStream;
+	StartLogMessage();
 	struct pollfd fd_list[1024];
 	int num = sizeof(fd_list) / sizeof(fd_list[0]);
 	int i = 0;
@@ -65,7 +74,8 @@ void Server::startLoop(int listen_sock)
 			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
 				continue;
 			case -1:// failed
-				std::cerr << "poll fail..." << std::endl;
+				logStream << "poll fail..." << std::endl;
+				logMessage(logStream, ERROR);
 				continue;
 			default: // Succeed
 			{
@@ -90,7 +100,8 @@ void Server::startLoop(int listen_sock)
 											  &len);
 						if (new_sock < 0)
 						{
-							std::cerr << "accept fail..." << std::endl;
+							logStream << "accept fail..." << std::endl;
+							logMessage(logStream, ERROR);
 							continue;
 						}
 						//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
@@ -111,9 +122,10 @@ void Server::startLoop(int listen_sock)
 						}
 						User *new_user = new User(fd_list[i].fd);
 						this->getPassword().empty() ? new_user->setAuthorized(true) : new_user->setAuthorized(false);
-						std::cout << "get a new link " <<
+						logStream << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
+						logMessage(logStream, INFO);
 						_users.push_back(new_user);
 //						std::cout << "Created " << i <<  " _user" << std::endl;
 //						for (size_t i = 0; i < _users.size(); ++i) {
@@ -132,11 +144,13 @@ void Server::startLoop(int listen_sock)
 						ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
 						if (s < 0)
 						{
-							std::cerr << "read fail..." << std::endl;
+							logStream << "read fail..." << std::endl;
+							logMessage(logStream, ERROR);
 							continue;
 						} else if (s == 0)
 						{
-							std::cout << "client quit..." << std::endl;
+							logStream << "client quit..." << std::endl;
+							logMessage(logStream, INFO);
 							close(fd_list[i].fd);
 							fd_list[i].fd = -1;
 						} else
@@ -151,7 +165,8 @@ void Server::startLoop(int listen_sock)
 							}
 							if (!user)
 							{
-								std::cerr << "_user fd undefined" << std::endl;
+								logStream << "_user fd undefined" << std::endl;
+								logMessage(logStream, ERROR);
 								throw (FtException());
 							}
 							handleRequest(buf, *(user));
@@ -180,4 +195,47 @@ Server &Server::operator=(const Server &other) {
 	this->_port = other._port;
 	this->_password = other._password;
 	return(*this);
+}
+
+void Server::logUserMessage(std::string message, User &user, LogType type) {
+	std::stringstream logStream;
+	std::stringstream lol(message);
+	std::string			line;
+	size_t				last;
+	while (std::getline(lol, line)){
+		if (line.size() > 2 && line.at(line.size() - 1) == '\r')
+			line = line.substr(0, line.size() - 1);
+		logStream << user << "|\"" << line << '\"' << std::endl;
+	}
+	logMessage(logStream, type);
+}
+
+void Server::logMessage(std::stringstream &message, LogType type) {
+	std::stringstream out;
+	std::string	line;
+	std::string	typeString;
+
+	while (std::getline(message, line)){
+		out << currentTime();
+		switch (type) {
+			case IN:
+				out << "|<<<<<|";
+				break;
+			case OUT:
+				out << "|>>>>>|";
+				break;
+			case INFO:
+				out << "|INFO |";
+				break;
+			case ERROR:
+				out << "|ERROR|";
+				break;
+			case DEV:
+				out << "|DEV  |";
+				break;
+		}
+		out << line << std::endl;
+	}
+	std::cout << out.str();
+	message.clear();
 }
