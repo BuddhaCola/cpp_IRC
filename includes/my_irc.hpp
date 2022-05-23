@@ -19,6 +19,6 @@ bool	validateString(std::string &);
 std::string					trim(const std::string &);
 std::string					getmessage(std::string &);
 std::string					toLowercase(std::string &);
-std::vector<std::string>	splitString(std::string);
+std::string					currentTime();
 
 #endif //MY_IRC_MY_IRC_HPP

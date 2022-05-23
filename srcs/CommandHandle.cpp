@@ -26,7 +26,7 @@ void	Server::executeCommand(Command const &command){
 	}
 	if (!command.getUser().isAuthorized())
 	{
-		std::cout << "unauthorized request from _user fd |" << command.getUser().getFd() << "| nick |" << command.getUser().getNick() << "|\n" << CommandNames[command.getType()] << std::endl;
+		std::cout << "unauthorized request from _user fd |" << command.getUser().getFd() << "| nick |" << command.getUser().getNick() << "|\n" << command.typeToString() << std::endl;
 	}
 	else {
 		//not allowed for unauthorized users
@@ -56,7 +56,7 @@ void	Server::executeCommand(Command const &command){
 				std::cerr << "WHO method is not implemented" << std::endl;
 				break;
 			default:
-				std::cout << "undefined command" << command.getTextPart() << std::endl;
+				break;
 		}
 	}
 }
@@ -65,7 +65,7 @@ void	Server::executeCommand(Command const &command){
 void printRequest(char *request, User &user) {
 	std::stringstream out;
 
-	out << user << ' ';
+	out << currentTime() << user << ' ';
 	out << "\n\"" << request << '\"' << std::endl;
 	std::cout << out.str() << std::endl;
 }
@@ -75,11 +75,6 @@ void Server::handleRequest(char *request, User &user) {
 
 	printRequest(request, user);
 	commands = parseRequest(std::string(request), user);
-	if (commands.empty()) {
-#ifdef MORE_INFO
-		std::cout << CYAN "|unrecognized request: " << request << RESET << std::endl;
-#endif
-	}
 	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
 		executeCommand(*it);
 	}
@@ -94,9 +89,14 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 		if (current.at(current.size() - 1) == '\r') {
 			current = current.substr(0, current.size() - 1);
 		}
-		commands.push_back(Command(current, user));
-	}
-	return commands;
+		try {
+			commands.push_back(Command(current, user));
+		}
+		catch (FtException &e) {
+				std::cerr << "unrecognized request: \"" << current << '\"' << std::endl;
+			}
+		}
+		return commands;
 }
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-5.2

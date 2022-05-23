@@ -23,7 +23,7 @@ X(WHO)
 
 //enum representation
 #define X(e) e
-enum CommandEnum { COMMANDS(X), NumCommands };
+enum CommandEnum { COMMANDS(X), UNDEFINED }; //rename UNDEFINED
 #undef X
 
 //string representation
@@ -36,6 +36,8 @@ public:
 	Command(std::string &string, User &user);
 	CommandEnum 					getType() const;
 	std::string						getTextPart() const;
+	std::string						typeToString() const;
+	std::string						argumentsToString() const;
 	User							&getUser() const;
 	const std::vector<std::string>	&getArguments() const;
 	const std::string				&getArgument(int) const;
@@ -43,12 +45,12 @@ public:
 
 	~Command();
 	Command &	operator=	(const Command &);
-	std::ostream& operator<<(std::ostream &);
+	std::ostream& operator<<(std::ostream &) const;
 	friend std::ostream& operator<< (std::ostream&, const Command&);
 	Command(Command const &);
 private:
 	CommandEnum 				_type;
-	std::string					*_textPart;
+	std::string					*_textPart = 0;
 	std::vector<std::string>	_arguments;
 	User						&_user;
 

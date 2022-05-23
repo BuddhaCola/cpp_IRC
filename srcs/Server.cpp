@@ -111,7 +111,6 @@ void Server::poll_procces()
 		if (_fd_list[i].fd == _listen_socket &&
 			(_fd_list[i].revents & POLLIN))
 		{
-			// 1. Provide a connection acceptance service if the listening socket is ready to read
 			int new_sock = create_new_socket();
 			if (new_sock < 0)
 			{
