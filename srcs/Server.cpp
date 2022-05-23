@@ -36,7 +36,7 @@ void Server::StartLogMessage() {
 	logMessageStream << "Password is " << (getPassword().empty() ? "not set" :
 										   ("set to |" + getPassword()) + "|")
 					 << std::endl;
-	logMessage(logMessageStream, INFO);
+	logger.logMessage(logMessageStream, INFO);
 }
 
 void Server::startLoop(int listen_sock)
@@ -75,7 +75,7 @@ void Server::startLoop(int listen_sock)
 				continue;
 			case -1:// failed
 				logStream << "poll fail..." << std::endl;
-				logMessage(logStream, ERROR);
+				logger.logMessage(logStream, ERROR);
 				continue;
 			default: // Succeed
 			{
@@ -101,7 +101,7 @@ void Server::startLoop(int listen_sock)
 						if (new_sock < 0)
 						{
 							logStream << "accept fail..." << std::endl;
-							logMessage(logStream, ERROR);
+							logger.logMessage(logStream, ERROR);
 							continue;
 						}
 						//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
@@ -125,7 +125,7 @@ void Server::startLoop(int listen_sock)
 						logStream << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
-						logMessage(logStream, INFO);
+						logger.logMessage(logStream, INFO);
 						_users.push_back(new_user);
 //						std::cout << "Created " << i <<  " _user" << std::endl;
 //						for (size_t i = 0; i < _users.size(); ++i) {
@@ -145,12 +145,12 @@ void Server::startLoop(int listen_sock)
 						if (s < 0)
 						{
 							logStream << "read fail..." << std::endl;
-							logMessage(logStream, ERROR);
+							logger.logMessage(logStream, ERROR);
 							continue;
 						} else if (s == 0)
 						{
 							logStream << "client quit..." << std::endl;
-							logMessage(logStream, INFO);
+							logger.logMessage(logStream, INFO);
 							close(fd_list[i].fd);
 							fd_list[i].fd = -1;
 						} else
@@ -166,7 +166,7 @@ void Server::startLoop(int listen_sock)
 							if (!user)
 							{
 								logStream << "_user fd undefined" << std::endl;
-								logMessage(logStream, ERROR);
+								logger.logMessage(logStream, ERROR);
 								throw (FtException());
 							}
 							handleRequest(buf, *(user));
@@ -195,47 +195,4 @@ Server &Server::operator=(const Server &other) {
 	this->_port = other._port;
 	this->_password = other._password;
 	return(*this);
-}
-
-void Server::logUserMessage(std::string message, User &user, LogType type) {
-	std::stringstream logStream;
-	std::stringstream lol(message);
-	std::string			line;
-	size_t				last;
-	while (std::getline(lol, line)){
-		if (line.size() > 2 && line.at(line.size() - 1) == '\r')
-			line = line.substr(0, line.size() - 1);
-		logStream << user << "|\"" << line << '\"' << std::endl;
-	}
-	logMessage(logStream, type);
-}
-
-void Server::logMessage(std::stringstream &message, LogType type) {
-	std::stringstream out;
-	std::string	line;
-	std::string	typeString;
-
-	while (std::getline(message, line)){
-		out << currentTime();
-		switch (type) {
-			case IN:
-				out << "|<<<<<|";
-				break;
-			case OUT:
-				out << "|>>>>>|";
-				break;
-			case INFO:
-				out << "|INFO |";
-				break;
-			case ERROR:
-				out << "|ERROR|";
-				break;
-			case DEV:
-				out << "|DEV  |";
-				break;
-		}
-		out << line << std::endl;
-	}
-	std::cout << out.str();
-	message.clear();
 }

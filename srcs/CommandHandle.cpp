@@ -19,11 +19,11 @@ void	Server::executeCommand(Command const &command){
 			return;
 		case PONG:
 			logStream << "PONG method is not implemented" << std::endl;
-			logMessage(logStream, DEV);
+			logger.logMessage(logStream, DEV);
 			return;
 		case QUIT:
 			logStream << "QUIT method is not implemented" << std::endl;
-			logMessage(logStream, DEV);
+			logger.logMessage(logStream, DEV);
 			return;
 		default:
 			break;
@@ -31,7 +31,7 @@ void	Server::executeCommand(Command const &command){
 	if (!command.getUser().isAuthorized())
 	{
 		logStream << "unauthorized request from " << command.getUser();
-		logMessage(logStream, ERROR);
+		logger.logMessage(logStream, ERROR);
 	}
 	else {
 		//not allowed for unauthorized users
@@ -41,31 +41,31 @@ void	Server::executeCommand(Command const &command){
 				break;
 			case NOTICE:
 				logStream << "NOTICE method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			case JOIN:
 				logStream << "JOIN method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			case OPER:
 				logStream << "OPER method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			case KILL:
 				logStream << "KILL method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			case KICK:
 				logStream << "KICK method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			case LIST:
 				logStream << "LIST method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			case WHO:
 				logStream << "WHO method is not implemented" << std::endl;
-				logMessage(logStream, DEV);
+				logger.logMessage(logStream, DEV);
 				break;
 			default:
 				break;
@@ -76,7 +76,7 @@ void	Server::executeCommand(Command const &command){
 void Server::handleRequest(char *request, User &user) {
 	std::vector<Command> commands;
 
-	logUserMessage(std::string(request), user, IN);
+	logger.logUserMessage(std::string(request), user, IN);
 	commands = parseRequest(std::string(request), user);
 	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
 		executeCommand(*it);
@@ -100,7 +100,7 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 		}
 		catch (FtException &e) {
 				logStream << "unrecognized request: \"" << current << '\"' << std::endl;
-				logMessage(logStream, ERROR);
+				logger.logMessage(logStream, ERROR);
 			}
 		}
 		return commands;
@@ -133,11 +133,11 @@ void Server::handlePassword(const Command &command) {
 
 	if (command.getArguments().size() != 1) {
 			logStream << "something went wrong" << std::endl; //TODO errorhandle
-			logMessage(logStream, ERROR);
+			logger.logMessage(logStream, ERROR);
 	}
 	if (command.getTextPart().empty()) {
 			logStream << "something went wrong" << std::endl; //TODO errorhandle
-			logMessage(logStream, ERROR);
+			logger.logMessage(logStream, ERROR);
 	}
 	std::string	userInput = trim(command.getTextPart());
 	User	&user = command.getUser();
@@ -159,7 +159,7 @@ void Server::handleSetNick(const Command &command) {
 
 	if (command.getArguments().size() != 1) {
 		logStream << "something went wrong" << std::endl; //TODO errorhandle
-		logMessage(logStream, ERROR);
+		logger.logMessage(logStream, ERROR);
 	}
 	User &user = command.getUser();
 	std::string	nickToSet = trim(command.getArgument(0));
@@ -171,7 +171,7 @@ void Server::handleSetNick(const Command &command) {
 		logStream << "FAILED ";
 	}
 	logStream << "set nick user " << user;
-	logMessage(logStream, INFO);
+	logger.logMessage(logStream, INFO);
 	return;
 }
 
@@ -203,5 +203,5 @@ void Server::handlePing(const Command &command) {
 	if (!command.getArguments().empty())
 		reply = reply.append(command.getArgument(0));
 	write(user.getFd(), reply.c_str(), reply.size());
-	logUserMessage(reply, command.getUser(), OUT);
+	logger.logUserMessage(reply, command.getUser(), OUT);
 }

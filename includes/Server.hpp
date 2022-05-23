@@ -11,6 +11,7 @@
 #include "Channel.hpp"
 #include "Command.hpp"
 #include "my_irc.hpp"
+#include "Logger.hpp"
 #include <sys/select.h>
 #include <poll.h>
 #include <netinet/in.h>
@@ -23,14 +24,6 @@ typedef struct Response {
 	std::string	body;
 }	Response;
 
-enum LogType { //TODO move to Logger class
-	IN,
-	OUT,
-	INFO,
-	ERROR,
-	DEV
-};
-
 class Server {
 public:
 	Server(int, std::string);
@@ -42,18 +35,15 @@ public:
 
 	~Server();
 private:
-
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
 	std::vector<Channel *>	_channels;
-
-	void StartLogMessage(); //TODO move to Logger class
-	static void logMessage(std::stringstream &message, LogType type);
-	static void logUserMessage(std::string message, User &user, LogType type); //move to logger
-
-	void handleRequest(char *request, User &user);
-	static std::vector<Command>	parseRequest(std::string const &request, User &);
+	Logger					logger;
+	
+	void						StartLogMessage();
+	void						handleRequest(char *request, User &user);
+	std::vector<Command>		parseRequest(std::string const &request, User &);
 
 	//request handling implementations
 	void						executeCommand(Command const &);

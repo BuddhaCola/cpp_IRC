@@ -4,6 +4,7 @@ SRC		=	srcs/main.cpp\
  			srcs/User.cpp\
  			srcs/Server.cpp\
  			srcs/Utils.cpp\
+ 			srcs/Logger.cpp\
  			srcs/CommandHandle.cpp\
  			srcs/Command.cpp
 
