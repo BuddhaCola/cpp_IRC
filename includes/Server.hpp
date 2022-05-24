@@ -27,31 +27,23 @@ typedef struct Response {
 class Server {
 public:
 	Server(int, std::string);
-	int create_new_socket();
-	void 						createListenSocket(int);
-	void						startLoop();
-	void 						pollProcces();
-	void 						addNewUser(int fd);
+	int 						creat_listen_socket(int);
+	void						startLoop(int);
 	std::string					getPassword() const;
 	int 						getPort() const;
 	Server & operator= (const Server &other);
 
 	~Server();
 private:
-
-	int 					_num;
 	int						_port;
-	int 					_listen_socket;
 	std::string				_password;
 	std::vector<User *>		_users;
 	std::vector<Channel *>	_channels;
-	struct pollfd 			_fd_list[1024];
-	struct sockaddr_in 		_client;
-	Logger 					logger;
+	Logger					logger;
 
 	void						StartLogMessage();
-	void handleRequest(char *request, User &user);
-	std::vector<Command>	parseRequest(std::string const &request, User &);
+	void						handleRequest(char *request, User &user);
+	std::vector<Command>		parseRequest(std::string const &request, User &);
 
 	//request handling implementations
 	void						executeCommand(Command const &);
