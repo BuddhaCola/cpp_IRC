@@ -11,6 +11,7 @@
 #include "Channel.hpp"
 #include "Command.hpp"
 #include "my_irc.hpp"
+#include "Logger.hpp"
 #include <sys/select.h>
 #include <poll.h>
 #include <netinet/in.h>
@@ -46,9 +47,11 @@ private:
 	std::vector<Channel *>	_channels;
 	struct pollfd 			_fd_list[1024];
 	struct sockaddr_in 		_client;
+	Logger 					logger;
 
+	void						StartLogMessage();
 	void handleRequest(char *request, User &user);
-	static std::vector<Command>	parseRequest(std::string const &request, User &);
+	std::vector<Command>	parseRequest(std::string const &request, User &);
 
 	//request handling implementations
 	void						executeCommand(Command const &);
@@ -56,7 +59,7 @@ private:
 	void						handlePassword(Command const &);
 	void						handleSetNick(Command const &);
 	void						handlePrivateMessage(Command const &);
-
+	void						handlePing(Command const &);
 	Server();
 };
 

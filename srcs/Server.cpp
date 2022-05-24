@@ -1,3 +1,4 @@
+#include <sstream>
 #include "../includes/Server.hpp"
 
 Server::Server(int port, std::string password) : _port(port), _password(password){
@@ -30,10 +31,12 @@ void Server::creat_listen_socket(int port)
 
 void Server::addNewUser(int fd)
 {
+	std::stringstream logStream;
+
 	User *new_user = new User(fd);
 	this->getPassword().empty() ? new_user->setAuthorized(true)
 								: new_user->setAuthorized(false);
-	std::cout << "get a new link " <<
+	logStream << "get a new link " <<
 			  inet_ntoa(_client.sin_addr) << ":" <<
 			  ntohs(_client.sin_port) << std::endl;
 	_users.push_back(new_user);
@@ -52,13 +55,21 @@ int Server::create_new_socket()
 	return new_sock;
 }
 
+void Server::StartLogMessage() {
+	std::stringstream logMessageStream;
+
+	logMessageStream << "Starting server on port " << this->_port << ' ';
+	logMessageStream << "Password is " << (getPassword().empty() ? "not set" :
+										   ("set to |" + getPassword()) + "|")
+					 << std::endl;
+	logger.logMessage(logMessageStream, INFO);
+}
 
 void Server::startLoop()
 {
-	std::cout << "Starting server on port " << this->_port << std::endl;
-	std::cout << "Password is " << (getPassword().empty() ? "not set" :
-									("set to |" + getPassword()) + "|")
-			  << std::endl;
+	std::stringstream logStream;
+	StartLogMessage();
+
 	_num = sizeof(_fd_list) / sizeof(_fd_list[0]);
 	int i = 0;
 
@@ -90,7 +101,8 @@ void Server::startLoop()
 			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
 				continue;
 			case -1:// failed
-				std::cerr << "poll fail..." << std::endl;
+				logStream << "poll fail..." << std::endl;
+				logger.logMessage(logStream, ERROR);
 				continue;
 			default:
 				poll_procces();// Succeed
@@ -100,6 +112,9 @@ void Server::startLoop()
 
 void Server::poll_procces()
 {
+	std::stringstream logStream;
+
+
 	_num = sizeof(_fd_list)/sizeof(_fd_list[0]);
 	int i = 0;
 	for (; i < _num; i++)
@@ -114,7 +129,7 @@ void Server::poll_procces()
 			int new_sock = create_new_socket();
 			if (new_sock < 0)
 			{
-				std::cerr << "accept fail..." << std::endl;
+				logStream << "accept fail..." << std::endl;
 				continue;
 			}
 			//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
@@ -142,11 +157,12 @@ void Server::poll_procces()
 			ssize_t s = read(_fd_list[i].fd, buf, sizeof(buf) - 1);
 			if (s < 0)
 			{
-				std::cerr << "read fail..." << std::endl;
-				break;
+				logStream << "read fail..." << std::endl;
+				logger.logMessage(logStream, ERROR);
+				continue;
 			} else if (s == 0)
 			{
-				std::cout << "client quit..." << std::endl;
+				logStream << "client quit..." << std::endl;
 				close(_fd_list[i].fd);
 				_fd_list[i].fd = -1;
 			} else
@@ -161,7 +177,8 @@ void Server::poll_procces()
 				}
 				if (!user)
 				{
-					std::cerr << "_user fd undefined" << std::endl;
+					logStream << "_user fd undefined" << std::endl;
+					logger.logMessage(logStream, ERROR);
 					throw (FtException());
 				}
 				handleRequest(buf, *(user));

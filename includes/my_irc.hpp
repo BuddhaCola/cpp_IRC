@@ -5,6 +5,7 @@
 #define RESET "\033[0m"
 
 #define MORE_INFO
+#define LOGGER_PATH "logger.txt"
 
 class FtException: public std::exception
 {
