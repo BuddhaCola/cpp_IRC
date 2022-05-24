@@ -27,10 +27,10 @@ typedef struct Response {
 class Server {
 public:
 	Server(int, std::string);
-	int 						create_new_socket();
-	void 						creat_listen_socket(int);
+	int create_new_socket();
+	void 						createListenSocket(int);
 	void						startLoop();
-	void 						poll_procces();
+	void 						pollProcces();
 	void 						addNewUser(int fd);
 	std::string					getPassword() const;
 	int 						getPort() const;

@@ -7,7 +7,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 Server::Server() : _port(-1), _password(std::string()) {
 }
 
-void Server::creat_listen_socket(int port)
+void Server::createListenSocket(int port)
 {
 	int sock = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
 	if( sock < 0 )
@@ -70,6 +70,8 @@ void Server::startLoop()
 	std::stringstream logStream;
 	StartLogMessage();
 
+	this->createListenSocket(this->getPort());
+
 	_num = sizeof(_fd_list) / sizeof(_fd_list[0]);
 	int i = 0;
 
@@ -105,12 +107,12 @@ void Server::startLoop()
 				logger.logMessage(logStream, ERROR);
 				continue;
 			default:
-				poll_procces();// Succeed
+				pollProcces();// Succeed
 		}
 	}
 }
 
-void Server::poll_procces()
+void Server::pollProcces()
 {
 	std::stringstream logStream;
 
