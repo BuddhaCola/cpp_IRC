@@ -1,10 +1,11 @@
 #include <sstream>
 #include "../includes/Server.hpp"
 
-Server::Server(int port, std::string password) : _port(port), _password(password){
+Server::Server(int port, std::string password) : _port(port), _password
+(password), _flagReg(0){
 }
 
-Server::Server() : _port(-1), _password(std::string()) {
+Server::Server() : _port(-1), _password(std::string()), _flagReg(0) {
 }
 
 int Server::creat_listen_socket(int port)
@@ -191,8 +192,14 @@ int Server::getPort() const
 	return this->_port;
 }
 
+int Server::getFlagReg() const
+{
+	return this->_flagReg;
+}
+
 Server &Server::operator=(const Server &other) {
 	this->_port = other._port;
 	this->_password = other._password;
 	return(*this);
 }
+

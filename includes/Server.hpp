@@ -20,7 +20,7 @@
 #include <iostream>
 
 typedef struct Response {
-	int			code;
+	std::string	code;
 	std::string	body;
 }	Response;
 
@@ -39,6 +39,7 @@ private:
 	std::string				_password;
 	std::vector<User *>		_users;
 	std::vector<Channel *>	_channels;
+	int						_flagReg;
 	Logger					logger;
 
 	void						StartLogMessage();
@@ -46,6 +47,7 @@ private:
 	std::vector<Command>		parseRequest(std::string const &request, User &);
 
 	//request handling implementations
+	int 						getFlagReg() const;
 	void						executeCommand(Command const &);
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);

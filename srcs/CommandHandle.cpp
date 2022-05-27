@@ -108,6 +108,8 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-5.2
 void Server::handlePrivateMessage(const Command &command) {
+	Response response;
+
 	std::string message = command.getTextPart();
 	std::string reciverNick(command.getArgument(0)); //???;
 	User		*reciver = 0;
@@ -122,14 +124,15 @@ void Server::handlePrivateMessage(const Command &command) {
 		write(reciver->getFd(), message.c_str(), message.size());
 	else
 	{
-		//     401    ERR_NOSUCHNICK
-		//              "<nickname> :No such nick/channel"
+		response.code = "401"; //   ERR_NOSUCHNICK
+		response.body = reciverNick + " :No such nick/channel";
 	}
 }
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.1
 void Server::handlePassword(const Command &command) {
 	std::stringstream logStream;
+	Response response;
 
 	if (command.getArguments().size() != 1) {
 			logStream << "something went wrong" << std::endl; //TODO errorhandle
@@ -138,6 +141,13 @@ void Server::handlePassword(const Command &command) {
 	if (command.getTextPart().empty()) {
 			logStream << "something went wrong" << std::endl; //TODO errorhandle
 			logger.logMessage(logStream, ERROR);
+			response.code = "461";
+			response.body = "ERR_NEEDMOREPARAMS";
+
+	}
+	else if (this->getFlagReg()){
+		response.code = "462";
+		response.body = "PASS ERR_ALREADYREGISTRED";
 	}
 	std::string	userInput = trim(command.getTextPart());
 	User	&user = command.getUser();
@@ -145,10 +155,13 @@ void Server::handlePassword(const Command &command) {
 	if (!this->_password.empty()) {
 		if (userInput == this->getPassword()) {
 			user.setAuthorized(true);
+			logStream << "Correct Password" << std::endl;
+			logger.logMessage(logStream, INFO);
 			return;
 		}
 		else {
-			//do something //TODO
+			logStream << "Password wasn't set on the server" << std::endl;
+			logger.logMessage(logStream, INFO);
 		}
 	}
 }
@@ -172,6 +185,7 @@ void Server::handleSetNick(const Command &command) {
 	}
 	logStream << "set nick user " << user;
 	logger.logMessage(logStream, INFO);
+	_flagReg = 1;
 	return;
 }
 
