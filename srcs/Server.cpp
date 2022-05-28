@@ -125,6 +125,9 @@ void Server::startLoop(int listen_sock)
 						logStream << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
+						new_user->setPort(ntohs(client.sin_port)); //Ваня, добавь к себе такую же штуку
+						new_user->setIp(inet_ntoa(client.sin_addr));
+						int iq = ntohs(client.sin_port);
 						logger.logMessage(logStream, INFO);
 						_users.push_back(new_user);
 //						std::cout << "Created " << i <<  " _user" << std::endl;

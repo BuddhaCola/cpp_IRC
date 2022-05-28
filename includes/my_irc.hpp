@@ -5,7 +5,7 @@
 #define RESET "\033[0m"
 
 #define MORE_INFO
-#define LOGGER_PATH "logger.txt"
+#define LOGGER_PATH "log"
 
 class FtException: public std::exception
 {
@@ -19,7 +19,7 @@ public:
 bool	validateString(std::string &);
 std::string					trim(const std::string &);
 std::string					getmessage(std::string &);
-std::string					toLowercase(std::string &);
+std::string					toLowercase(std::string const &);
 std::string					currentTime();
 
 #endif //MY_IRC_MY_IRC_HPP

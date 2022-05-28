@@ -4,6 +4,7 @@ Logger::~Logger() {
 }
 
 Logger::Logger() {
+	//TODO сделать не по тупому
 	filename = LOGGER_PATH;
 	file.open(filename, MODE);
 	if (!file )

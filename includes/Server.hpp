@@ -44,6 +44,7 @@ private:
 	void						StartLogMessage();
 	void						handleRequest(char *request, User &user);
 	std::vector<Command>		parseRequest(std::string const &request, User &);
+	bool						checkIfNickRegistered(const std::string &nick);
 
 	//request handling implementations
 	void						executeCommand(Command const &);
@@ -52,6 +53,8 @@ private:
 	void						handleSetNick(Command const &);
 	void						handlePrivateMessage(Command const &);
 	void						handlePing(Command const &);
+	void						handleQuit(const Command &);
+	void						messageOfTHeDay(User &user);
 	Server();
 };
 

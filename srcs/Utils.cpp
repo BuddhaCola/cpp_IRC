@@ -29,9 +29,10 @@ std::string	getmessage(std::string &string) {
 	return (std::string(string.substr(string.find(':'), string.length())));
 }
 
-std::string toLowercase(std::string &original) {
+std::string toLowercase(std::string const &original) {
 	std::string lowercased;
-	for (std::vector<char>::iterator it = original.begin(); it != original.end(); ++it) {
+
+	for (std::vector<char const>::iterator it = original.begin(); it != original.end(); ++it) {
 		lowercased += std::tolower(*it);
 	}
 	return lowercased;
