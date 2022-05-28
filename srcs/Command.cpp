@@ -108,3 +108,9 @@ std::string Command::argumentsToString() const {
 	}
 	return os.str();
 }
+
+const Response &Command::getResponse() const
+{
+	return _response;
+}
+

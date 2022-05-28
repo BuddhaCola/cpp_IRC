@@ -63,3 +63,35 @@ const std::string &User::getRealname() const {
 void User::setRealname(const std::string &realname) {
 	_realname = realname;
 }
+
+const std::string &User::getIp() const {
+	return _IP;
+}
+
+void User::setIp(const std::string &ip) {
+	_IP = ip;
+}
+
+int User::getPort() const {
+	return _port;
+}
+
+void User::setPort(int port) {
+	User::_port = port;
+}
+
+const std::string &User::getNickLowercase() const {
+	return _nickLowercase;
+}
+
+void User::setNickLowercase(const std::string &nickLowercase) {
+	_nickLowercase = nickLowercase;
+}
+
+std::string User::getUserInfoString() {
+	std::string info;
+
+	info = this->getNick() + "!" + this->getUsername() + "@" + this->getIp();
+//	info += ":" + htons(this->getPort()); //Not sure if it right way
+	return info;
+}

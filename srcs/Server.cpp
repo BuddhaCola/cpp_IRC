@@ -1,11 +1,10 @@
 #include <sstream>
 #include "../includes/Server.hpp"
 
-Server::Server(int port, std::string password) : _port(port), _password
-(password), _flagReg(0){
+Server::Server(int port, std::string password) : _port(port), _password(password){
 }
 
-Server::Server() : _port(-1), _password(std::string()), _flagReg(0) {
+Server::Server() : _port(-1), _password(std::string()) {
 }
 
 int Server::creat_listen_socket(int port)
@@ -40,15 +39,13 @@ void Server::StartLogMessage() {
 	logger.logMessage(logMessageStream, INFO);
 }
 
-void Server::startLoop(int listen_sock)
+void Server::createFdList(int listen_socket)
 {
-	std::stringstream logStream;
-	StartLogMessage();
-	struct pollfd fd_list[1024];
-	int num = sizeof(fd_list) / sizeof(fd_list[0]);
+
+//	int num = sizeof(fd_list) / sizeof(fd_list[0]);
 	int i = 0;
 
-	for (; i < num; i++)
+	for (; i < MAX_USERS; i++)
 	{
 		fd_list[i].fd = -1;// File descriptor
 		fd_list[i].events = 0;// Set of events to monitor
@@ -57,20 +54,28 @@ void Server::startLoop(int listen_sock)
 	// 3. Add read-only events for file descriptors of interest
 
 	i = 0;
-	for (; i < num; i++)
+	for (; i < MAX_USERS; i++)
 	{
 		if (fd_list[i].fd == -1)
 		{
-			fd_list[i].fd = listen_sock;
+			fd_list[i].fd = listen_socket;
 			fd_list[i].events = POLLIN;// Concern about Read-Only Events
 			break;
 		}
 	}
+}
+
+
+void Server::startLoop(int listen_sock)
+{
+	std::stringstream logStream;
+	StartLogMessage();
+	createFdList(listen_sock);
 
 	while (1)
 	{
 		//4. Start calling poll and wait for the file descriptor set of interest to be ready
-		switch (poll(fd_list, num, 3000))
+		switch (poll(fd_list, MAX_USERS, 3000))
 		{
 			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
 				continue;
@@ -83,7 +88,7 @@ void Server::startLoop(int listen_sock)
 				//   If it is a listener file descriptor, call accept to accept a new connection
 				//   If it is a normal file descriptor, read is called to read the data
 				int i = 0;
-				for (; i < num; i++)
+				for (; i < MAX_USERS; i++)
 				{
 					if (fd_list[i].fd == -1)
 					{
@@ -107,13 +112,13 @@ void Server::startLoop(int listen_sock)
 						}
 						//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
 						int i = 0;
-						for (; i < num; i++)
+						for (; i < MAX_USERS; i++)
 						{
 							if (fd_list[i].fd ==
 								-1)//Place the first value in the array at - 1
 								break;
 						}
-						if (i < num)
+						if (i < MAX_USERS)
 						{
 							fd_list[i].fd = new_sock;
 							fd_list[i].events = POLLIN;
@@ -126,6 +131,9 @@ void Server::startLoop(int listen_sock)
 						logStream << "get a new link " <<
 							   inet_ntoa(client.sin_addr) << ":" <<
 							   ntohs(client.sin_port) << std::endl;
+						new_user->setPort(ntohs(client.sin_port)); //Ваня, добавь к себе такую же штуку
+						new_user->setIp(inet_ntoa(client.sin_addr));
+						int iq = ntohs(client.sin_port);
 						logger.logMessage(logStream, INFO);
 						_users.push_back(new_user);
 //						std::cout << "Created " << i <<  " _user" << std::endl;
@@ -192,14 +200,30 @@ int Server::getPort() const
 	return this->_port;
 }
 
-int Server::getFlagReg() const
-{
-	return this->_flagReg;
-}
-
 Server &Server::operator=(const Server &other) {
 	this->_port = other._port;
 	this->_password = other._password;
 	return(*this);
 }
 
+void Server::ServerMessageToUser(Command const &command)
+{
+	std::stringstream toSend;
+	Response 	const &response 	= command.getResponse();
+	User 		const &user 		= command.getUser();
+
+//	:lala!oper@178.204.221.161 PRIVMSG lala :hi
+//	:irc.ircnet.su 001 LALA :Welcome to the IrcNet.ru IRC Network LALA!JOPA@178.204.221.161
+//	:wow!lol@188.242.23.62 PRIVMSG lala :вот такая вот херня
+	toSend << ':' << "Megaserver";
+	if (response.code)
+		toSend << ' ' << response.code;
+
+	toSend << ' ' << user.getNick() << ' ' << ':' << response.body;
+
+}
+
+void Server::sendErrorToUser(Command const &)
+{
+
+}

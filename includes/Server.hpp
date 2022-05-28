@@ -19,14 +19,14 @@
 #include <fcntl.h>
 #include <iostream>
 
-typedef struct Response {
-	std::string	code;
-	std::string	body;
-}	Response;
+#define MAX_USERS 1024
 
 class Server {
 public:
 	Server(int, std::string);
+	void 						createFdList(int);
+	void 						sendErrorToUser(Command const &);
+	void 						ServerMessageToUser(Command const &command);
 	int 						creat_listen_socket(int);
 	void						startLoop(int);
 	std::string					getPassword() const;
@@ -35,6 +35,7 @@ public:
 
 	~Server();
 private:
+	struct pollfd 			fd_list[1024];
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
@@ -45,6 +46,7 @@ private:
 	void						StartLogMessage();
 	void						handleRequest(char *request, User &user);
 	std::vector<Command>		parseRequest(std::string const &request, User &);
+	bool						checkIfNickRegistered(const std::string &nick);
 
 	//request handling implementations
 	int 						getFlagReg() const;
@@ -54,7 +56,11 @@ private:
 	void						handleSetNick(Command const &);
 	void						handlePrivateMessage(Command const &);
 	void						handlePing(Command const &);
+	void						handleQuit(const Command &);
+	void						messageOfTHeDay(User &user);
 	Server();
+
+
 };
 
 #endif //MY_IRC_SERVER_HPP
