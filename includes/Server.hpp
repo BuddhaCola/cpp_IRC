@@ -25,7 +25,9 @@ class Server {
 public:
 	Server(int, std::string);
 	void 						createFdList(int);
-	void pollDefault(int listen_sock);
+	User * addNewUser(int i);
+	void 						readFromBuffer(int i);
+	void 						pollDefault(int listen_sock);
 	void 						sendErrorToUser(Command const &);
 	void 						ServerMessageToUser(Command const &command);
 	int 						creat_listen_socket(int);

@@ -14,6 +14,8 @@ int Server::creat_listen_socket(int port)
 		throw("socket fail...\n");
 
 	int opt = 1;
+	if (fcntl(sock, F_SETFL, O_NONBLOCK))
+		throw "Could not set non-blocking socket...";
 	setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
 	struct sockaddr_in local;
@@ -41,8 +43,6 @@ void Server::StartLogMessage() {
 
 void Server::createFdList(int listen_socket)
 {
-
-//	int num = sizeof(fd_list) / sizeof(fd_list[0]);
 	int i = 0;
 
 	for (; i < MAX_USERS; i++)
@@ -51,8 +51,6 @@ void Server::createFdList(int listen_socket)
 		fd_list[i].events = 0;// Set of events to monitor
 		fd_list[i].revents = 0;// Ready Event Set of Concerned Descriptors
 	}
-	// 3. Add read-only events for file descriptors of interest
-
 	i = 0;
 	for (; i < MAX_USERS; i++)
 	{
@@ -62,6 +60,52 @@ void Server::createFdList(int listen_socket)
 			fd_list[i].events = POLLIN;// Concern about Read-Only Events
 			break;
 		}
+	}
+}
+
+User * Server::addNewUser(int i)
+{
+	std::stringstream logStream;
+	User *user = 0;
+	for (std::vector<User *>::iterator it = this->_users.begin();
+		 it != this->_users.end(); ++it)
+	{
+		if ((*it)->getFd() == fd_list[i].fd)
+		{
+			user = *(it);
+			break;
+		}
+	}
+	if (!user)
+	{
+		logStream << "_user fd undefined" << std::endl;
+		logger.logMessage(logStream, ERROR);
+		throw (FtException());
+	}
+	return user;
+}
+
+void Server::readFromBuffer(int i)
+{
+	std::stringstream logStream;
+	char buf[1024];
+
+	ssize_t s = read(fd_list[i].fd,buf,sizeof(buf) - 1);
+	if (s < 0)
+	{
+		logStream << "read fail..." << std::endl;
+		logger.logMessage(logStream,ERROR);
+	} else if (s == 0)
+	{
+		logStream << "client quit..." << std::endl;
+		logger.logMessage(logStream,INFO);
+		close(fd_list[i].fd);
+		fd_list[i].fd = -1;
+	} else
+	{
+		buf[s] = 0;
+		User *user = addNewUser(i);
+		handleRequest(buf,*(user));
 	}
 }
 
@@ -89,12 +133,11 @@ void Server::pollDefault(int listen_sock)
 				logger.logMessage(logStream, ERROR);
 				continue;
 			}
-			//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
+
 			int i = 0;
 			for (; i < MAX_USERS; i++)
 			{
-				if (fd_list[i].fd == -1)//Place the first value in the array
-					// at - 1
+				if (fd_list[i].fd == -1)
 					break;
 			}
 			if (i < MAX_USERS)
@@ -112,7 +155,7 @@ void Server::pollDefault(int listen_sock)
 					  inet_ntoa(client.sin_addr) << ":" <<
 					  ntohs(client.sin_port) << std::endl;
 			new_user->setPort(
-					ntohs(client.sin_port)); //Ваня, добавь к себе такую же штуку
+					ntohs(client.sin_port));
 			new_user->setIp(inet_ntoa(client.sin_addr));
 			int iq = ntohs(client.sin_port);
 			logger.logMessage(logStream, INFO);
@@ -120,42 +163,7 @@ void Server::pollDefault(int listen_sock)
 			continue;
 		}
 		if (fd_list[i].revents & POLLIN)
-		{
-			char buf[1024];
-			ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
-			if (s < 0)
-			{
-				logStream << "read fail..." << std::endl;
-				logger.logMessage(logStream, ERROR);
-				continue;
-			} else if (s == 0)
-			{
-				logStream << "client quit..." << std::endl;
-				logger.logMessage(logStream, INFO);
-				close(fd_list[i].fd);
-				fd_list[i].fd = -1;
-			} else
-			{
-				buf[s] = 0;
-				User *user = 0;
-				for (std::vector<User *>::iterator it = this->_users.begin();
-					 it != this->_users.end(); ++it)
-				{
-					if ((*it)->getFd() == fd_list[i].fd)
-					{
-						user = *(it);
-						break;
-					}
-				}
-				if (!user)
-				{
-					logStream << "_user fd undefined" << std::endl;
-					logger.logMessage(logStream, ERROR);
-					throw (FtException());
-				}
-				handleRequest(buf, *(user));
-			}
-		}
+			readFromBuffer(i);
 	}
 }
 
