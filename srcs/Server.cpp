@@ -65,6 +65,99 @@ void Server::createFdList(int listen_socket)
 	}
 }
 
+void Server::pollDefault(int listen_sock)
+{
+	std::stringstream logStream;
+
+	int i = 0;
+	for (; i < MAX_USERS; i++)
+	{
+		if (fd_list[i].fd == -1)
+		{
+			continue;
+		}
+		if (fd_list[i].fd == listen_sock &&
+			(fd_list[i].revents & POLLIN))
+		{
+			struct sockaddr_in client;
+			socklen_t len = sizeof(client);
+			int new_sock = accept(listen_sock, (struct sockaddr *) &client,
+					&len);
+			if (new_sock < 0)
+			{
+				logStream << "accept fail..." << std::endl;
+				logger.logMessage(logStream, ERROR);
+				continue;
+			}
+			//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
+			int i = 0;
+			for (; i < MAX_USERS; i++)
+			{
+				if (fd_list[i].fd == -1)//Place the first value in the array
+					// at - 1
+					break;
+			}
+			if (i < MAX_USERS)
+			{
+				fd_list[i].fd = new_sock;
+				fd_list[i].events = POLLIN;
+			} else
+			{
+				close(new_sock);
+			}
+			User *new_user = new User(fd_list[i].fd);
+			this->getPassword().empty() ? new_user->setAuthorized(true)
+										: new_user->setAuthorized(false);
+			logStream << "get a new link " <<
+					  inet_ntoa(client.sin_addr) << ":" <<
+					  ntohs(client.sin_port) << std::endl;
+			new_user->setPort(
+					ntohs(client.sin_port)); //Ваня, добавь к себе такую же штуку
+			new_user->setIp(inet_ntoa(client.sin_addr));
+			int iq = ntohs(client.sin_port);
+			logger.logMessage(logStream, INFO);
+			_users.push_back(new_user);
+			continue;
+		}
+		if (fd_list[i].revents & POLLIN)
+		{
+			char buf[1024];
+			ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
+			if (s < 0)
+			{
+				logStream << "read fail..." << std::endl;
+				logger.logMessage(logStream, ERROR);
+				continue;
+			} else if (s == 0)
+			{
+				logStream << "client quit..." << std::endl;
+				logger.logMessage(logStream, INFO);
+				close(fd_list[i].fd);
+				fd_list[i].fd = -1;
+			} else
+			{
+				buf[s] = 0;
+				User *user = 0;
+				for (std::vector<User *>::iterator it = this->_users.begin();
+					 it != this->_users.end(); ++it)
+				{
+					if ((*it)->getFd() == fd_list[i].fd)
+					{
+						user = *(it);
+						break;
+					}
+				}
+				if (!user)
+				{
+					logStream << "_user fd undefined" << std::endl;
+					logger.logMessage(logStream, ERROR);
+					throw (FtException());
+				}
+				handleRequest(buf, *(user));
+			}
+		}
+	}
+}
 
 void Server::startLoop(int listen_sock)
 {
@@ -74,118 +167,21 @@ void Server::startLoop(int listen_sock)
 
 	while (1)
 	{
-		//4. Start calling poll and wait for the file descriptor set of interest to be ready
+
 		switch (poll(fd_list, MAX_USERS, 3000))
 		{
-			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
+			case 0: //timeout
 				continue;
 			case -1:// failed
 				logStream << "poll fail..." << std::endl;
 				logger.logMessage(logStream, ERROR);
 				continue;
-			default: // Succeed
-			{
-				//   If it is a listener file descriptor, call accept to accept a new connection
-				//   If it is a normal file descriptor, read is called to read the data
-				int i = 0;
-				for (; i < MAX_USERS; i++)
-				{
-					if (fd_list[i].fd == -1)
-					{
-						continue;
-					}
-					if (fd_list[i].fd == listen_sock &&
-						(fd_list[i].revents & POLLIN))
-					{
-						// 1. Provide a connection acceptance service if the listening socket is ready to read
-
-						struct sockaddr_in client;
-						socklen_t len = sizeof(client);
-						int new_sock = accept(listen_sock,
-											  (struct sockaddr *) &client,
-											  &len);
-						if (new_sock < 0)
-						{
-							logStream << "accept fail..." << std::endl;
-							logger.logMessage(logStream, ERROR);
-							continue;
-						}
-						//After obtaining the new file descriptor, add the file descriptor to the array for the next time you care about the file descriptor
-						int i = 0;
-						for (; i < MAX_USERS; i++)
-						{
-							if (fd_list[i].fd ==
-								-1)//Place the first value in the array at - 1
-								break;
-						}
-						if (i < MAX_USERS)
-						{
-							fd_list[i].fd = new_sock;
-							fd_list[i].events = POLLIN;
-						} else
-						{
-							close(new_sock);
-						}
-						User *new_user = new User(fd_list[i].fd);
-						this->getPassword().empty() ? new_user->setAuthorized(true) : new_user->setAuthorized(false);
-						logStream << "get a new link " <<
-							   inet_ntoa(client.sin_addr) << ":" <<
-							   ntohs(client.sin_port) << std::endl;
-						new_user->setPort(ntohs(client.sin_port)); //Ваня, добавь к себе такую же штуку
-						new_user->setIp(inet_ntoa(client.sin_addr));
-						int iq = ntohs(client.sin_port);
-						logger.logMessage(logStream, INFO);
-						_users.push_back(new_user);
-//						std::cout << "Created " << i <<  " _user" << std::endl;
-//						for (size_t i = 0; i < _users.size(); ++i) {
-//							std::cout << "fd:  " <<
-//							_users[i]->getFd()
-//							<< std::endl;
-//						}
-						continue;
-					}
-
-					//2. At this point, we are concerned with ordinary file descriptors.
-					//   Provide services to read data at this time
-					if (fd_list[i].revents & POLLIN)
-					{
-						char buf[1024];
-						ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
-						if (s < 0)
-						{
-							logStream << "read fail..." << std::endl;
-							logger.logMessage(logStream, ERROR);
-							continue;
-						} else if (s == 0)
-						{
-							logStream << "client quit..." << std::endl;
-							logger.logMessage(logStream, INFO);
-							close(fd_list[i].fd);
-							fd_list[i].fd = -1;
-						} else
-						{
-							buf[s] = 0;
-							User *user = 0;
-							for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
-								if ((*it)->getFd() == fd_list[i].fd) {
-									user = *(it);
-									break;
-								}
-							}
-							if (!user)
-							{
-								logStream << "_user fd undefined" << std::endl;
-								logger.logMessage(logStream, ERROR);
-								throw (FtException());
-							}
-							handleRequest(buf, *(user));
-						}
-					}
-				}
-			}
+			default://success
+				pollDefault(listen_sock);
 				break;
+			}
 		}
-	}
+	return;
 }
 
 Server::~Server() {

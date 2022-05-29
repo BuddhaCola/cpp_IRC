@@ -25,6 +25,7 @@ class Server {
 public:
 	Server(int, std::string);
 	void 						createFdList(int);
+	void pollDefault(int listen_sock);
 	void 						sendErrorToUser(Command const &);
 	void 						ServerMessageToUser(Command const &command);
 	int 						creat_listen_socket(int);
@@ -59,6 +60,7 @@ private:
 	void						handleQuit(const Command &);
 	void						messageOfTHeDay(User &user);
 	Server();
+
 
 
 };
