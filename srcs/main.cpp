@@ -40,7 +40,7 @@ int main(int ac, char **av)
 	try {
 		Server server = Server(Server(std::stoi(av[1]), password));
 		int listen_sock = server.creat_listen_socket(server.getPort());
-		server.startLoop(listen_sock);
+		server.mainLoop(listen_sock);
 	}
 	catch (std::exception &e) {
 		std::cerr << "An error occurred" << std::endl;

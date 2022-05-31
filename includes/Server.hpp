@@ -25,13 +25,13 @@ class Server {
 public:
 	Server(int, std::string);
 	void 						createFdList(int);
-	User * addNewUser(int i);
+	User * 						addNewUser(int i);
 	void 						readFromBuffer(int i);
-	void 						pollDefault(int listen_sock);
+	void pollDefault(int listen_sock);
 	void 						sendErrorToUser(Command const &);
 	void 						ServerMessageToUser(Command const &command);
 	int 						creat_listen_socket(int);
-	void						startLoop(int);
+	void						mainLoop(int);
 	std::string					getPassword() const;
 	int 						getPort() const;
 	Server & operator= (const Server &other);

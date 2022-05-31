@@ -6,7 +6,8 @@ SRC		=	srcs/main.cpp\
  			srcs/Utils.cpp\
  			srcs/Logger.cpp\
  			srcs/CommandHandle.cpp\
- 			srcs/Command.cpp
+ 			srcs/Command.cpp\
+ 			srcs/Poll.cpp
 
 CXX		= c++
 
