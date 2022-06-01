@@ -6,8 +6,7 @@ CommandEnum verbToCommand(std::string &verb) {
 	return CommandEnum(std::find(CommandNames, CommandNames + UNDEFINED, verb) - CommandNames);
 }
 
-std::string command_to_name(CommandEnum command)
-{
+std::string command_to_name(CommandEnum command) {
 	return (command < UNDEFINED) ? CommandNames[command] : "";
 }
 
@@ -20,6 +19,7 @@ Command::Command(std::string &string, User &user) : _user(user) {
 	if (current.empty()) { //empty command
 		return;
 	}
+	current = toUppercase(current);
 	_type = verbToCommand(current);
 	if (_type == UNDEFINED) {
 		throw FtException();

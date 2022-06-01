@@ -38,7 +38,7 @@ private:
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
-	std::vector<Channel *>	_channels;
+	std::vector<Channel *>	_channels; //https://datatracker.ietf.org/doc/html/rfc1459#section-1.3
 	Logger					logger;
 	
 	void						StartLogMessage();
@@ -54,7 +54,8 @@ private:
 	void						handlePrivateMessage(Command const &);
 	void						handlePing(Command const &);
 	void						handleQuit(const Command &);
-	void						messageOfTHeDay(User &user);
+	void						createAndSendMessageOfTHeDay(const User &user);
+	void						sendMOTD(const User &user);
 	Server();
 };
 
