@@ -1,6 +1,7 @@
 #include <sstream>
 #include "../includes/Server.hpp"
 #include "../includes/Command.hpp"
+#include "../includes/allAnswers.hpp"
 
 void	Server::executeCommand(Command const &command){
 	std::stringstream logStream;
@@ -117,6 +118,7 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 void Server::handlePrivateMessage(const Command &command) {
 	std::stringstream	logStream;
 	if (command.getArguments().size() < 2 || command.getArguments().size() > 2) {
+		sendError(command, ERR_NEEDMOREPARAMS);
 		logStream << "Not enough parameters" << std::endl; //TODO errorhandle
 		logger.logMessage(logStream, ERROR);
 //		throw FtException();

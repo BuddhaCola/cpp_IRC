@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 
+#include "allAnswers.hpp"
 #include "User.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
@@ -47,6 +48,7 @@ private:
 	Logger					logger;
 
 	void						StartLogMessage();
+	void 						sendError(Command const &command , int errorCode );
 	void						handleRequest(char *request, User &user);
 	std::vector<Command>		parseRequest(std::string const &request, User &);
 	bool						checkIfNickRegistered(const std::string &nick);
