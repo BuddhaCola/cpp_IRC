@@ -155,91 +155,86 @@ void sendError(const User &user, int err, const std::string &arg1, const std::st
 
 void Server::sendError(Command const &command , int errorCode )
 {
-	std::string	msg = ":Megaserver ";
+	std::string	msg = ":My_IRC ";
 	std::stringstream	ss;
 	User &user = command.getUser();
-	std::vector<std::string> const &commands = command.getArguments();
+	std::vector<std::string> const &arguments = command.getArguments();
 	ss << errorCode;
 	msg += ss.str() + " " + user.getNick();
 	switch (errorCode)
 	{
 		case ERR_NOSUCHNICK:
-			msg += " " + commands.at(1) + " :No such nick/channel\n";
+			msg += " :No such nick/channel\n";
 			break;
 		case ERR_NOSUCHSERVER:
-			msg += " " + commands.at(1) + " :No such server\n";
+			msg += " :No such server\n";
 			break;
 		case ERR_NOSUCHCHANNEL:
-			msg += " " + commands.at(1) + " :No such channel\n";
+			msg += " :No such channel\n";
 			break;
 		case ERR_CANNOTSENDTOCHAN:
-			msg += " " + commands.at(1) + " :Cannot send to channel\n";
+			msg += " :Cannot send to channel\n";
 			break;
 		case ERR_TOOMANYCHANNELS:
-			msg += " " + commands.at(1) + " :You have joined too many "
-								"channels\n";
+			msg += " :You have joined too many channels\n";
 			break;
 		case ERR_WASNOSUCHNICK:
-			msg += " " + commands.at(1) + " :There was no such nickname\n";
+			msg += " :There was no such nickname\n";
 			break;
 		case ERR_TOOMANYTARGETS:
-			msg += " " + commands.at(1) + " :Duplicate recipients. No arg1 "
-						  "delivered\n";
+			msg += " :Duplicate recipients delivered\n";
 			break;
 		case ERR_NOORIGIN:
 			msg += " :No origin specified\n";
 			break;
 		case ERR_NORECIPIENT:
-			msg += " :No recipient given (" + commands.at(1) + ")\n";
+			msg += " :No recipient given (" + arguments.at(1) + ")\n";
 			break;
 		case ERR_NOTEXTTOSEND:
 			msg += " :No text to send\n";
 			break;
 		case ERR_NOTOPLEVEL:
-			msg += " " + commands.at(1) + " :No toplevel domain specified\n";
+			msg += " :No toplevel domain specified\n";
 			break;
 		case ERR_WILDTOPLEVEL:
-			msg += " " + commands.at(1) + " :Wildcard in toplevel domain\n";
+			msg += " :Wildcard in toplevel domain\n";
 			break;
 		case ERR_UNKNOWNCOMMAND:
-			msg += " " + commands.at(1) + " :Unknown command\n";
+			msg += " :Unknown command\n";
 			break;
 		case ERR_NOMOTD:
 			msg += " :MOTD File is missing\n";
 			break;
 		case ERR_NOADMININFO:
-			msg += " " + commands.at(1) + " :No administrative info "
-								 "available\n";
+			msg += " :No administrative info available\n";
 			break;
 		case ERR_FILEERROR:
-			msg += " :File error doing \n" + commands.at(1) + " on " + commands.at(2) +
-					"\n";
+			msg += " :File error doing \n";
 			break;
 		case ERR_NONICKNAMEGIVEN:
 			msg += " :No nickname given\n";
 			break;
 		case ERR_ERRONEUSNICKNAME:
-			msg += " " + commands.at(1) + " :Erroneus nickname\n";
+			msg += " :Erroneus nickname\n";
 			break;
 		case ERR_NICKNAMEINUSE:
-			msg += " " + commands.at(1) + " :Nickname is already in use\n";
+			msg += " :Nickname is already in use\n";
 			break;
 		case ERR_NICKCOLLISION:
-			msg += " " + commands.at(1) + " :Nickname collision KILL\n";
+			msg += " :Nickname collision KILL\n";
 			break;
 		case ERR_USERNOTINCHANNEL:
-			msg += " " + commands.at(1) + " " + commands.at(2) + " :They aren't on that "
+			msg += " :They aren't on that "
 									  "channel\n";
 			break;
 		case ERR_NOTONCHANNEL:
-			msg += " " + commands.at(1) + " :You're not on that channel\n";
+			msg += " :You're not on that channel\n";
 			break;
 		case ERR_USERONCHANNEL:
-			msg += " " + commands.at(1) + " " + commands.at(2) + " :is already on "
-											 "channel\n";
+			msg += " :is already on channel\n";
 			break;
 		case ERR_NOLOGIN:
-			msg += " " + commands.at(1) + " :User not logged in\n";
+			msg += " :User not logged in\n";
 			break;
 		case ERR_SUMMONDISABLED:
 			msg += " :SUMMON has been disabled\n";
@@ -251,7 +246,7 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " :You have not registered\n";
 			break;
 		case ERR_NEEDMOREPARAMS:
-			msg += " " + commands.at(1) + " :Not enough parameters\n";
+			msg += " :Not enough parameters\n";
 			break;
 		case ERR_ALREADYREGISTRED:
 			msg += " :You may not reregister\n";
@@ -266,28 +261,28 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " :You are banned from this server\n";
 			break;
 		case ERR_KEYSET:
-			msg += " " + commands.at(1) + " :Channel key already set\n";
+			msg += " :Channel key already set\n";
 			break;
 		case ERR_CHANNELISFULL:
-			msg += " " + commands.at(1) + " :Cannot join channel (+l)\n";
+			msg += " :Cannot join channel (+l)\n";
 			break;
 		case ERR_UNKNOWNMODE:
-			msg += " " + commands.at(1) + " :is unknown mode char to me\n";
+			msg += " :is unknown mode char to me\n";
 			break;
 		case ERR_INVITEONLYCHAN:
-			msg += " " + commands.at(1) + " :Cannot join channel (+i)\n";
+			msg += " :Cannot join channel (+i)\n";
 			break;
 		case ERR_BANNEDFROMCHAN:
-			msg += " " + commands.at(1) + " :Cannot join channel (+b)\n";
+			msg += " :Cannot join channel (+b)\n";
 			break;
 		case ERR_BADCHANNELKEY:
-			msg += " " + commands.at(1) + " :Cannot join channel (+k)\n";
+			msg += " :Cannot join channel (+k)\n";
 			break;
 		case ERR_NOPRIVILEGES:
 			msg += " :Permission Denied- You're not an IRC operator\n";
 			break;
 		case ERR_CHANOPRIVSNEEDED:
-			msg += " " + commands.at(1) + " :You're not channel operator\n";
+			msg += " :You're not channel operator\n";
 			break;
 		case ERR_CANTKILLSERVER:
 			msg += " :You cant kill a server!\n";
@@ -305,6 +300,7 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += "UNKNOWN ERROR\n";
 			break;
 	}
+	logger.logUserMessage(msg, user, OUT);
 	write(user.getFd(), msg.c_str(), msg.size());
 }
 
