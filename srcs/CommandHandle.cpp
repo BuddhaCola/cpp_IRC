@@ -40,6 +40,7 @@ void	Server::executeCommand(Command const &command){
 				handlePrivateMessage(command);
 				break;
 			case NOTICE:
+				handleNoticeMessage(command);
 				logStream << "NOTICE method is not implemented" << std::endl;
 				logger.logMessage(logStream, DEV);
 				break;
@@ -115,13 +116,18 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-5.2
 void Server::handlePrivateMessage(const Command &command) {
-	std::stringstream	logStream;
-	if (command.getArguments().size() < 2 || command.getArguments().size() > 2) {
-		sendError(command, ERR_NEEDMOREPARAMS);
+	if (command.getArguments().size() == 0) {
+		return sendError(command, ERR_NORECIPIENT);
 	}
-	std::string			reciverNick = command.getArgument(0); //???;
+
+	if (command.getArguments().size() < 2) {
+		return sendError(command, ERR_NOTEXTTOSEND);
+	}
+
+	std::stringstream	logStream;
+	std::string			reciverNick = command.getArgument(0);
 	std::string			message = command.getArgument(1);
-	User		*reciver = 0;
+	User				*reciver = 0;
 
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it)->getNick() == reciverNick) {
@@ -138,15 +144,16 @@ void Server::handlePrivateMessage(const Command &command) {
 	}
 	else
 	{
-		int code;
-		code = 401;
-		std::stringstream str;
-		str << ":My_IRC " << code << " " << command.getUser().getNick() << " " << reciverNick << " :" << "No such nick or channel" << "\r\n"; //:irc.ircnet.su 451 PRIVMSG :You have not registered
-		std::string reply = str.str();
-		write(command.getUser().getFd(), reply.c_str(), reply.size());
-		logger.logUserMessage(reply, command.getUser(), OUT);
-		//     401    ERR_NOSUCHNICK
-		//              "<nickname> :No such nick/channel"
+		sendError(command, ERR_NOSUCHNICK);
+	}
+
+}
+
+void Server::handleNoticeMessage(const Command &command)
+{
+	std::stringstream	logStream;
+	if (command.getArguments().size() < 2 || command.getArguments().size() > 2) {
+		sendError(command, ERR_NORECIPIENT);
 	}
 }
 
@@ -190,7 +197,9 @@ void Server::handleSetNick(const Command &command) {
 	User &user = command.getUser();
 	std::string	nickToSet = trim(command.getArgument(0));
 	if (!checkIfNickRegistered(nickToSet)) {
-		logStream << "nick" << nickToSet << " already registered" << std::endl; //TODO errorhandle
+		sendError(command, ERR_NICKNAMEINUSE);
+		logStream << "nick " << nickToSet << " already registered" <<
+		std::endl; //TODO errorhandle
 		logger.logMessage(logStream, ERROR);
 	}
 	if (validateString(nickToSet)) {

@@ -102,7 +102,7 @@ void Server::mainLoop(int listen_sock)
 	while (1)
 	{
 		//4. Start calling poll and wait for the file descriptor set of interest to be ready
-		switch (poll(fd_list, num, 3000))
+		switch (poll(fd_list, MAX_USERS, 3000))
 		{
 			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
 				continue;
@@ -157,3 +157,5 @@ void Server::sendErrorToUser(Command const &)
 {
 
 }
+
+

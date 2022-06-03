@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include "User.hpp"
+#include <sstream>
 
 #define COMMANDS(X) \
 X(PASS),\
@@ -58,6 +59,11 @@ private:
 	std::string					*_textPart;
 	std::vector<std::string>	_arguments;
 	User						&_user;
+	Response					_response;
+public:
+	const Response &getResponse() const;
+
+private:
 
 	void 						parseTextPart(std::stringstream &);
 };
