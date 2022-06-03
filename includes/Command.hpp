@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include <sstream>
 #include "User.hpp"
 
 #define COMMANDS(X) \
@@ -48,7 +47,6 @@ public:
 	const std::vector<std::string>	&getArguments() const;
 	const std::string				&getArgument(int) const;
 	void							setArguments(const std::vector<std::string> &arguments);
-	const Response &getResponse() const;
 
 	~Command();
 	Command &	operator=	(const Command &);
@@ -56,16 +54,10 @@ public:
 	friend std::ostream& operator<< (std::ostream&, const Command&);
 	Command(Command const &);
 private:
-
-
 	CommandEnum 				_type;
 	std::string					*_textPart;
 	std::vector<std::string>	_arguments;
 	User						&_user;
-	Response					_response;
-
-
-private:
 
 	void 						parseTextPart(std::stringstream &);
 };

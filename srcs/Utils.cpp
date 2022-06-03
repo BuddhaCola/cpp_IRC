@@ -38,6 +38,15 @@ std::string toLowercase(std::string const &original) {
 	return lowercased;
 }
 
+std::string toUppercase(std::string const &original) {
+	std::string uppercased;
+
+	for (std::vector<char const>::iterator it = original.begin(); it != original.end(); ++it) {
+		uppercased += std::toupper(*it);
+	}
+	return uppercased;
+}
+
 std::string	currentTime() {
 	time_t curr_time;
 	tm * curr_tm;

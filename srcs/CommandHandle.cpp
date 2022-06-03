@@ -1,6 +1,5 @@
 #include <sstream>
 #include "../includes/Server.hpp"
-#include "../includes/Command.hpp"
 #include "../includes/allAnswers.hpp"
 
 void	Server::executeCommand(Command const &command){
@@ -119,9 +118,6 @@ void Server::handlePrivateMessage(const Command &command) {
 	std::stringstream	logStream;
 	if (command.getArguments().size() < 2 || command.getArguments().size() > 2) {
 		sendError(command, ERR_NEEDMOREPARAMS);
-		logStream << "Not enough parameters" << std::endl; //TODO errorhandle
-		logger.logMessage(logStream, ERROR);
-//		throw FtException();
 	}
 	std::string			reciverNick = command.getArgument(0); //???;
 	std::string			message = command.getArgument(1);
@@ -174,10 +170,11 @@ void Server::handlePassword(const Command &command) {
 	if (!this->_password.empty()) {
 		if (userInput == this->getPassword()) {
 			user.setAuthorized(true);
+			sendMOTD(user);
 			return;
 		}
 		else {
-			//do something ответ юзеру //TODO
+			//do something //TODO
 		}
 	}
 }
@@ -206,8 +203,7 @@ void Server::handleSetNick(const Command &command) {
 	}
 	logStream << "set nick user " << user;
 	logger.logMessage(logStream, INFO);
-	messageOfTHeDay(user);
-	return;
+	sendMOTD(user);
 }
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.3
@@ -225,15 +221,17 @@ void Server::handleUser(const Command &command) {
 	}
 	user.setUsername(command.getArgument(0));
 	user.setRealname(command.getArgument(3));
-
+	sendMOTD(user);
 }
 
-void Server::messageOfTHeDay(User &user)
+void Server::sendMOTD(User const &user) {
+	if (user.isAuthorized() && !user.getNick().empty() && !user.getUsername().empty())
+		createAndSendMessageOfTHeDay(user);
+}
+
+void Server::createAndSendMessageOfTHeDay(const User &user)
 {    //затычка
 	std::stringstream stream;
-	//:IRC 375 pop :- IRC Message of the day -
-	//:IRC 372 pop :- IRC Welcome to server!!!
-	//:IRC 376 pop :End of /MOTD command
 	stream << ":My_IRC 375 " + user.getNick() + " :- irc.ircnet.su Message of the Day -\r\n";
 	stream << ":My_IRC 372 " + user.getNick() + " wow\r\n";
 	stream << ":My_IRC 376 " + user.getNick() + " :End of /MOTD command.\r\n";

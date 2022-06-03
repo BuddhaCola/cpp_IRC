@@ -1,5 +1,6 @@
-#include <sstream>
 #include "../includes/Server.hpp"
+#include "../includes/Command.hpp"
+#include "../includes/User.hpp"
 
 Server::Server(int port, std::string password) : _port(port), _password(password){
 }
@@ -14,13 +15,11 @@ int Server::creat_listen_socket(int port)
 		throw("socket fail...\n");
 
 	int opt = 1;
-	if (fcntl(sock, F_SETFL, O_NONBLOCK))
-		throw "Could not set non-blocking socket...";
 	setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
 	struct sockaddr_in local;
 	local.sin_family = AF_INET;
-	local.sin_addr.s_addr = htonl(INADDR_ANY);// Address of any _type
+	local.sin_addr.s_addr = htonl(INADDR_ANY);// Address of any type
 	local.sin_port = htons(port);
 
 	if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )
@@ -51,6 +50,8 @@ void Server::createFdList(int listen_socket)
 		fd_list[i].events = 0;// Set of events to monitor
 		fd_list[i].revents = 0;// Ready Event Set of Concerned Descriptors
 	}
+	// 3. Add read-only events for file descriptors of interest
+
 	i = 0;
 	for (; i < MAX_USERS; i++)
 	{
@@ -100,14 +101,13 @@ void Server::mainLoop(int listen_sock)
 
 	while (1)
 	{
-
-		switch (poll(fd_list, MAX_USERS, 3000))
+		//4. Start calling poll and wait for the file descriptor set of interest to be ready
+		switch (poll(fd_list, num, 3000))
 		{
-			case 0: //timeout//TODO
+			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
 				continue;
 			case -1:// failed
-				logStream << "poll fail..." << std::endl;
-				logger.logMessage(logStream, ERROR);
+				std::cerr << "poll fail..." << std::endl;
 				continue;
 			default://success
 				pollDefault(listen_sock);

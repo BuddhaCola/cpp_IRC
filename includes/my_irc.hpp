@@ -20,6 +20,7 @@ bool	validateString(std::string &);
 std::string					trim(const std::string &);
 std::string					getmessage(std::string &);
 std::string					toLowercase(std::string const &);
+std::string					toUppercase(std::string const &original);
 std::string					currentTime();
 
 #endif //MY_IRC_MY_IRC_HPP
