@@ -20,7 +20,8 @@
 #include <fcntl.h>
 #include <iostream>
 
-#define MAX_USERS 1024
+#define MAX_USERS 	1024
+#define TIMEOUT 	30
 
 class Server {
 public:
@@ -28,18 +29,20 @@ public:
 	void 						createFdList(int);
 	User * 						addNewUser(int i);
 	void 						readFromBuffer(int i);
-	void pollDefault(int listen_sock);
+	void 						pollDefault(int listen_sock);
 	void 						sendErrorToUser(Command const &);
 	void 						ServerMessageToUser(Command const &command);
 	int 						creat_listen_socket(int);
 	void						mainLoop(int);
 	std::string					getPassword() const;
 	int 						getPort() const;
+	void 						pingClient();
 	Server & operator= (const Server &other);
 
 	~Server();
 private:
 	struct pollfd 			fd_list[1024];
+	std::time_t 			arr_timestamp[MAX_USERS];
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
@@ -70,6 +73,8 @@ private:
 	void 						handleNoticeMessage(Command const &);
 	void						messageOfTHeDay(User &user);
 	Server();
+
+
 };
 
 #endif //MY_IRC_SERVER_HPP

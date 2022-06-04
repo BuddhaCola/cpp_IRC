@@ -8,7 +8,8 @@ SRC		=	srcs/main.cpp\
  			srcs/CommandHandle.cpp\
  			srcs/Command.cpp\
  			srcs/Poll.cpp\
- 			srcs/sendError.cpp
+ 			srcs/SendError.cpp\
+ 			srcs/PingClient.cpp
 
 CXX		= c++
 

@@ -35,6 +35,7 @@ void Server::pollDefault(int listen_sock)
 			{
 				fd_list[i].fd = new_sock;
 				fd_list[i].events = POLLIN;
+				arr_timestamp[i] = std::time(NULL);
 			} else
 			{
 				close(new_sock);
@@ -56,8 +57,6 @@ void Server::pollDefault(int listen_sock)
 		if (fd_list[i].revents & POLLIN)
 		{
 			char buf[1024];
-
-
 			ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
 			if (s < 0)
 			{

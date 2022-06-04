@@ -44,23 +44,22 @@ void Server::createFdList(int listen_socket)
 {
 	int i = 0;
 
-	for (; i < MAX_USERS; i++)
-	{
+	for (; i < MAX_USERS; i++) {
 		fd_list[i].fd = -1;// File descriptor
 		fd_list[i].events = 0;// Set of events to monitor
 		fd_list[i].revents = 0;// Ready Event Set of Concerned Descriptors
 	}
-	// 3. Add read-only events for file descriptors of interest
-
 	i = 0;
-	for (; i < MAX_USERS; i++)
-	{
+	for (; i < MAX_USERS; i++) {
 		if (fd_list[i].fd == -1)
 		{
 			fd_list[i].fd = listen_socket;
 			fd_list[i].events = POLLIN;// Concern about Read-Only Events
 			break;
 		}
+	}
+	for (long i = 0; i < MAX_USERS; i++) {
+		arr_timestamp[i] = -1;
 	}
 }
 
@@ -92,7 +91,6 @@ void Server::readFromBuffer(int i)
 
 }
 
-
 void Server::mainLoop(int listen_sock)
 {
 	std::stringstream logStream;
@@ -102,16 +100,16 @@ void Server::mainLoop(int listen_sock)
 	while (1)
 	{
 		//4. Start calling poll and wait for the file descriptor set of interest to be ready
-		switch (poll(fd_list, MAX_USERS, 3000))
+		switch (poll(fd_list, MAX_USERS, 5000))
 		{
 			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
+				pingClient();
 				continue;
 			case -1:// failed
 				std::cerr << "poll fail..." << std::endl;
 				continue;
 			default://success
 				pollDefault(listen_sock);
-				//TODO add methods
 				break;
 			}
 		}
@@ -153,9 +151,7 @@ void Server::ServerMessageToUser(Command const &command)
 
 }
 
-void Server::sendErrorToUser(Command const &)
-{
 
-}
+
 
 
