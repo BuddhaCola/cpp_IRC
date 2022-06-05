@@ -39,7 +39,7 @@ int main(int ac, char **av)
 	std::string password = ac == 3 ? std::string(av[2]) : std::string();
 	try {
 		Server server = Server(Server(std::stoi(av[1]), password));
-		int listen_sock = server.creat_listen_socket(server.getPort());
+		int listen_sock = server.creatListenSocket(server.getPort());
 		server.mainLoop(listen_sock);
 	}
 	catch (std::exception &e) {

@@ -20,19 +20,20 @@
 #include <fcntl.h>
 #include <iostream>
 
-#define MAX_USERS 	1024
-#define TIMEOUT 	30
+#define MAX_USERS 		1024
+#define POLL_TIMEOUT 	7000
+#define TIMEOUT 		15
 
 class Server {
 public:
 	Server(int, std::string);
 	void 						createFdList(int);
-	User * 						addNewUser(int i);
+	User * 						checkFdUser(int i);
 	void 						readFromBuffer(int i);
 	void 						pollDefault(int listen_sock);
 	void 						sendErrorToUser(Command const &);
 	void 						ServerMessageToUser(Command const &command);
-	int 						creat_listen_socket(int);
+	int 						creatListenSocket(int);
 	void						mainLoop(int);
 	std::string					getPassword() const;
 	int 						getPort() const;
@@ -42,11 +43,9 @@ public:
 	~Server();
 private:
 	struct pollfd 			fd_list[1024];
-	std::time_t 			arr_timestamp[MAX_USERS];
 	int						_port;
 	std::string				_password;
 	std::vector<User *>		_users;
-	int						_flagReg;
 	Logger					logger;
 	std::vector<Channel *>	_channels; //https://datatracker.ietf.org/doc/html/rfc1459#section-1.3
 
@@ -65,12 +64,11 @@ private:
 	void						handleQuit(const Command &);
 	void						createAndSendMessageOfTHeDay(const User &user);
 	void						sendMOTD(const User &user);
-
 	void 						sendError(Command const &command , int errorCode );
-
+	void 						killUser(User const &);// убрать
 	//request handling implementations
-	int 						getFlagReg() const;
 	void 						handleNoticeMessage(Command const &);
+	void 						handlePong(const Command &command);
 	void						messageOfTHeDay(User &user);
 	Server();
 

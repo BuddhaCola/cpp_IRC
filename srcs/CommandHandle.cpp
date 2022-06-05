@@ -19,6 +19,7 @@ void	Server::executeCommand(Command const &command){
 			handlePing(command);
 			return;
 		case PONG:
+			handlePong(command);
 			logStream << "PONG method is not implemented" << std::endl;
 			logger.logMessage(logStream, DEV);
 			return;
@@ -77,6 +78,7 @@ void	Server::executeCommand(Command const &command){
 void Server::handleRequest(char *request, User &user) {
 	std::vector<Command> commands;
 
+	user.setTimestamp(std::time(NULL));
 	logger.logUserMessage(std::string(request), user, IN);
 	commands = parseRequest(std::string(request), user);
 	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
@@ -258,6 +260,11 @@ void Server::handlePing(const Command &command) {
 	logger.logUserMessage(reply, command.getUser(), OUT);
 }
 
+void Server::handlePong(const Command &command)
+{
+
+}
+
 bool Server::checkIfNickRegistered(const std::string &nick) {
 	std::string lowerCased = toLowercase(nick);
 
@@ -269,16 +276,21 @@ bool Server::checkIfNickRegistered(const std::string &nick) {
 	return true;
 }
 
-void Server::handleQuit(const Command &command) {
-	User &user = command.getUser();
+void Server::killUser(User const &user) {
 	std::stringstream logStream;
 
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it) == &user) {
 			_users.erase(it);
+			close(user.getFd());
 			logStream << "user " << user.getNick() << " removed from the server";
 			logger.logMessage(logStream, INFO);
 			break;
 		}
 	}
+}
+
+void Server::handleQuit(const Command &command) {
+	User &user = command.getUser();
+	killUser(user);
 }

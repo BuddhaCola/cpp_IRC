@@ -8,7 +8,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 Server::Server() : _port(-1), _password(std::string()) {
 }
 
-int Server::creat_listen_socket(int port)
+int Server::creatListenSocket(int port)
 {
 	int sock = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
 	if( sock < 0 )
@@ -58,12 +58,9 @@ void Server::createFdList(int listen_socket)
 			break;
 		}
 	}
-	for (long i = 0; i < MAX_USERS; i++) {
-		arr_timestamp[i] = -1;
-	}
 }
 
-User * Server::addNewUser(int i)
+User * Server::checkFdUser(int i)
 {
 	std::stringstream logStream;
 	User *user = 0;
@@ -99,21 +96,19 @@ void Server::mainLoop(int listen_sock)
 
 	while (1)
 	{
-		//4. Start calling poll and wait for the file descriptor set of interest to be ready
-		switch (poll(fd_list, MAX_USERS, 5000))
+		switch (poll(fd_list, MAX_USERS, POLL_TIMEOUT))
 		{
-			case 0:// The state of the denominator has exceeded before it has changed. timeout Time
+			case 0:
 				pingClient();
 				continue;
-			case -1:// failed
+			case -1:
 				std::cerr << "poll fail..." << std::endl;
 				continue;
-			default://success
+			default:
 				pollDefault(listen_sock);
 				break;
 			}
 		}
-	return;
 }
 
 Server::~Server() {
@@ -150,6 +145,8 @@ void Server::ServerMessageToUser(Command const &command)
 	toSend << ' ' << user.getNick() << ' ' << ':' << response.body;
 
 }
+
+
 
 
 

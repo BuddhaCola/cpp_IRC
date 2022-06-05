@@ -1,13 +1,17 @@
 #include "../includes/User.hpp"
 #include <sstream>
+#include <unistd.h>
+#include <iostream>
 
-User::User() : _fd(-1), _nick(std::string()) {
+User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()) {
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)) {
 }
 
 User::~User() {
+	close(_fd);
+	std::cout << "fd[" << _fd << "] closed" << std::endl;
 }
 
 int User::getFd() const {
@@ -94,4 +98,14 @@ std::string User::getUserInfoString() {
 	info = this->getNick() + "!" + this->getUsername() + "@" + this->getIp();
 //	info += ":" + htons(this->getPort()); //Not sure if it right way
 	return info;
+}
+
+time_t User::getTimestamp() const
+{
+	return _timestamp;
+}
+
+void User::setTimestamp(time_t timestamp)
+{
+	_timestamp = timestamp;
 }

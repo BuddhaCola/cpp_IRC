@@ -35,7 +35,6 @@ void Server::pollDefault(int listen_sock)
 			{
 				fd_list[i].fd = new_sock;
 				fd_list[i].events = POLLIN;
-				arr_timestamp[i] = std::time(NULL);
 			} else
 			{
 				close(new_sock);
@@ -71,7 +70,7 @@ void Server::pollDefault(int listen_sock)
 			} else
 			{
 				buf[s] = 0;
-				User *user = addNewUser(i);
+				User *user = checkFdUser(i);
 				handleRequest(buf, *(user));
 			}
 		}

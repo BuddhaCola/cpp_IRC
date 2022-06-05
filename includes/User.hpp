@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <ctime>
 
 class User {
 public:
@@ -18,17 +19,16 @@ public:
 	friend std::ostream&	operator<< (std::ostream&, const User&);
 	~User();
 private:
-	int			_fd;
-	bool		_authorized;
-	std::string	_nick;
-	std::string	_nickLowercase;
-
-private:
-	std::string	_username;
-	std::string	_hostname;
-	std::string	_realname;
-	std::string	_IP;
-	int 		_port;
+	int						_fd;
+	bool					_authorized;
+	std::string				_nick;
+	std::string				_nickLowercase;
+	std::time_t 			_timestamp;
+	std::string				_username;
+	std::string				_hostname;
+	std::string				_realname;
+	std::string				_IP;
+	int 					_port;
 public:
 	const std::string		&getNickLowercase() const;
 	void					setNickLowercase(const std::string &nickLowercase);
@@ -41,6 +41,8 @@ public:
 	const std::string		&getRealname() const;
 	void					setRealname(const std::string &realname);
 	std::string				getUserInfoString();
+	time_t					getTimestamp() const;
+	void					setTimestamp(time_t timestamp);
 };
 
 #endif //MY_IRC_USER_HPP
