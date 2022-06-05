@@ -11,7 +11,7 @@ User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::ti
 
 User::~User() {
 	close(_fd);
-	std::cout << "fd[" << _fd << "] closed" << std::endl;
+	std::cout << "destructor user [" << _fd << "] closed" << std::endl;
 }
 
 int User::getFd() const {

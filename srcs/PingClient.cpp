@@ -7,14 +7,14 @@
 void Server::pingClient()
 {
 	std::time_t timeNow;
-	std::string pingString("Ping 1648063017\r\n");
+	std::string pingString;
 	for (int i = 0; i < _users.size(); i++) {
 		User &user  = *_users.at(i);
+		pingString = "PING " + std::to_string(user.getTimestamp()) + "\r\n";
+		logger.logUserMessage(pingString, user, OUT);
 		write(user.getFd(), pingString.c_str(), pingString.length());
 		timeNow = std::time(NULL);
 		if (timeNow - user.getTimestamp() >= TIMEOUT) {
-			fd_list[i].fd = -1;//костыль, без него poll не
-			// будет корректно работать так она использует fd_list
 			killUser(user);
 		}
 	}

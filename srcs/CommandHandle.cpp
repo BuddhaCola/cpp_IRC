@@ -282,8 +282,10 @@ void Server::killUser(User const &user) {
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it) == &user) {
 			_users.erase(it);
-			close(user.getFd());
-			logStream << "user " << user.getNick() << " removed from the server";
+			fd_list[user.getFd() - 3].fd = -1;
+			user.~User();
+			logStream << "User " << user.getNick() << " was removed from the "
+				"server";
 			logger.logMessage(logStream, INFO);
 			break;
 		}

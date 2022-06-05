@@ -90,7 +90,6 @@ void Server::readFromBuffer(int i)
 
 void Server::mainLoop(int listen_sock)
 {
-	std::stringstream logStream;
 	StartLogMessage();
 	createFdList(listen_sock);
 
