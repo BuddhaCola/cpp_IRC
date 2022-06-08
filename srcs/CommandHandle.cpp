@@ -304,7 +304,7 @@ void Server::killUser(User const &user) {
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
 			user.~User();
-			logStream << "User " << user.getNick() << " was removed from the "
+			logStream << "User " << user.getNick() << "was removed from the "
 				"server";
 			logger.logMessage(logStream, INFO);
 			break;

@@ -128,23 +128,6 @@ Server &Server::operator=(const Server &other) {
 	return(*this);
 }
 
-void Server::ServerMessageToUser(Command const &command)
-{
-	std::stringstream toSend;
-	Response 	const &response 	= command.getResponse();
-	User 		const &user 		= command.getUser();
-
-//	:lala!oper@178.204.221.161 PRIVMSG lala :hi
-//	:irc.ircnet.su 001 LALA :Welcome to the IrcNet.ru IRC Network LALA!JOPA@178.204.221.161
-//	:wow!lol@188.242.23.62 PRIVMSG lala :вот такая вот херня
-	toSend << ':' << "Megaserver";
-	if (response.code)
-		toSend << ' ' << response.code;
-
-	toSend << ' ' << user.getNick() << ' ' << ':' << response.body;
-
-}
-
 
 
 
