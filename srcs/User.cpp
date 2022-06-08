@@ -1,4 +1,6 @@
 #include "../includes/User.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Logger.hpp"
 #include <sstream>
 #include <unistd.h>
 #include <iostream>
@@ -6,12 +8,15 @@
 User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)) {
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp
+(std::time(NULL)) {
 }
 
 User::~User() {
+	std::string massage = "ERROR :Closing Link: [" + _IP + "] (Ping timeout: "
+		+ std::to_string(TIMEOUT) + " seconds)\n";
+	write(_fd, massage.c_str(), massage.length());
 	close(_fd);
-	std::cout << "destructor user [" << _fd << "] closed" << std::endl;
 }
 
 int User::getFd() const {

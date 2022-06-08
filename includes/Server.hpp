@@ -61,16 +61,20 @@ private:
 	void						handleSetNick(Command const &);
 	void						handlePrivateMessage(Command const &);
 	void						handlePing(Command const &);
+	void 						handlePong(const Command &command);
 	void						handleQuit(const Command &);
+	void 						handleNoticeMessage(Command const &);
+	void 						handleWho(const Command &command);
 	void						createAndSendMessageOfTHeDay(const User &user);
 	void						sendMOTD(const User &user);
 	void 						sendError(Command const &command , int errorCode );
-	void 						killUser(User const &);// убрать
+	void 						killUser(User const &);
+	void 						printAllUsers(const Command &command);
 	//request handling implementations
-	void 						handleNoticeMessage(Command const &);
-	void 						handlePong(const Command &command);
+
 	void						messageOfTHeDay(User &user);
 	Server();
+
 
 
 };

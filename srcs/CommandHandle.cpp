@@ -20,8 +20,6 @@ void	Server::executeCommand(Command const &command){
 			return;
 		case PONG:
 			handlePong(command);
-			logStream << "PONG method is not implemented" << std::endl;
-			logger.logMessage(logStream, DEV);
 			return;
 		case QUIT:
 			handleQuit(command);
@@ -66,8 +64,7 @@ void	Server::executeCommand(Command const &command){
 				logger.logMessage(logStream, DEV);
 				break;
 			case WHO:
-				logStream << "WHO method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleWho(command);
 				break;
 			default:
 				break;
@@ -262,10 +259,31 @@ void Server::handlePing(const Command &command) {
 
 void Server::handlePong(const Command &command)
 {
-//	TODO
-	if (command.getTextPart() == std::to_string(command.getUser().getTimestamp()))
-		logger.logUserMessage("nice ", command.getUser(), INFO );
+	logger.logUserMessage("User is still alive", command.getUser(), INFO);
 }
+
+void Server::handleWho(const Command &command)
+{
+	if (command.getUser().isAuthorized()) {
+		printAllUsers(command);
+		//TODO printAllChannels
+	}
+	else {
+		sendError(command, ERR_NOTREGISTERED);
+	}
+
+}
+void Server::printAllUsers(const Command &command)
+{
+	int userFd = command.getUser().getFd();
+	std::string message;
+	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
+		message = ":My_IRK " + std::to_string(RPL_WHOREPLY) + " " + command
+				.getUser().getNick() + " * " + (*it)->getNick() + "\r\n";
+		write(userFd, message.c_str(), message.length());
+	}
+}
+
 
 bool Server::checkIfNickRegistered(const std::string &nick) {
 	std::string lowerCased = toLowercase(nick);
@@ -298,3 +316,7 @@ void Server::handleQuit(const Command &command) {
 	User &user = command.getUser();
 	killUser(user);
 }
+
+
+
+
