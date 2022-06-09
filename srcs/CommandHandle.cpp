@@ -3,7 +3,8 @@
 #include "../includes/allAnswers.hpp"
 
 void	Server::executeCommand(Command const &command){
-	std::stringstream logStream;
+	std::stringstream	logStream;
+	User				&user = command.getUser();
 	//allowed for unauthorized users
 	switch (command.getType()) {
 		case PASS:
@@ -15,6 +16,14 @@ void	Server::executeCommand(Command const &command){
 		case NICK:
 			handleSetNick(command);
 			return;
+		default:
+			break;
+	}
+	if (user.getNick().empty() || user.getUsername().empty()) {
+		//TODO errorhandle
+		//:irc.ircnet.su 451 privmsg :You have not registered
+	}
+	switch (command.getType()) {
 		case PING:
 			handlePing(command);
 			return;
@@ -29,10 +38,8 @@ void	Server::executeCommand(Command const &command){
 		default:
 			break;
 	}
-	if (!command.getUser().isAuthorized())
-	{
-		logStream << "unauthorized request from " << command.getUser();
-		logger.logMessage(logStream, ERROR);
+	if (!command.getUser().isAuthorized()) {
+		//TODO errorhandle "not registered (password not entered)"
 	}
 	else {
 		//not allowed for unauthorized users
