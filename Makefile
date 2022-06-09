@@ -5,11 +5,20 @@ SRC		=	srcs/main.cpp\
  			srcs/Server.cpp\
  			srcs/Utils.cpp\
  			srcs/Logger.cpp\
+ 			srcs/Channel.cpp\
  			srcs/CommandHandle.cpp\
  			srcs/Command.cpp\
  			srcs/Poll.cpp\
  			srcs/SendError.cpp\
- 			srcs/PingClient.cpp
+ 			srcs/PingClient.cpp\
+			srcs/methodHandlers/handlePrivateMessage.cpp\
+			srcs/methodHandlers/handlePassword.cpp\
+			srcs/methodHandlers/handleSetNick.cpp\
+			srcs/methodHandlers/handleUser.cpp\
+			srcs/methodHandlers/handlePing.cpp\
+			srcs/methodHandlers/handlePong.cpp\
+			srcs/methodHandlers/handleJoin.cpp\
+			srcs/methodHandlers/handleQuit.cpp
 
 CXX		= c++
 
