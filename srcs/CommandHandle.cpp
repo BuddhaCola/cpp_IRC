@@ -1,5 +1,6 @@
 #include <sstream>
 #include "../includes/Server.hpp"
+#include "../includes/allAnswers.hpp"
 
 void	Server::executeCommand(Command const &command){
 	std::stringstream	logStream;
@@ -138,6 +139,33 @@ void Server::createAndSendMessageOfTHeDay(const User &user)
 	write(user.getFd(), mes_376.c_str(), mes_376.length());
 }
 
+void Server::handlePing(const Command &command) {
+	std::string reply;
+	User &user = command.getUser();
+	reply = "PONG ";
+	if (!command.getArguments().empty())
+		reply = reply.append(command.getArgument(0));
+	write(user.getFd(), reply.c_str(), reply.size());
+	logger.logUserMessage(reply, command.getUser(), OUT);
+}
+
+void Server::handlePong(const Command &command)
+{
+	logger.logUserMessage("User is still alive", command.getUser(), INFO);
+}
+
+void Server::handleWho(const Command &command)
+{
+	if (!command.getArgument(0).empty()) {
+
+		sendReply(command,RPL_ENDOFWHO);
+	}
+	else
+	{
+		//TODO printAllChannels();
+	}
+}
+
 bool Server::checkIfNickRegistered(const std::string &nick) {
 	std::string lowerCased = toLowercase(nick);
 
@@ -175,3 +203,12 @@ void Server::killUser(User const &user) {
 		}
 	}
 }
+
+void Server::handleQuit(const Command &command) {
+	User &user = command.getUser();
+	killUser(user);
+}
+
+
+
+

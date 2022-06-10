@@ -31,8 +31,6 @@ public:
 	User * 						checkFdUser(int i);
 	void 						readFromBuffer(int i);
 	void 						pollDefault(int listen_sock);
-	void 						sendErrorToUser(Command const &);
-	void 						ServerMessageToUser(Command const &command);
 	int 						creatListenSocket(int);
 	void						mainLoop(int);
 	std::string					getPassword() const;
@@ -61,15 +59,15 @@ private:
 	void						handleSetNick(Command const &);
 	void						handlePrivateMessage(Command const &);
 	void						handlePing(Command const &);
-	void 						handlePong(const Command &command);
+	void 						handlePong(const Command &);
 	void						handleQuit(const Command &);
 	void 						handleNoticeMessage(Command const &);
-	void 						handleWho(const Command &command);
-	void						createAndSendMessageOfTHeDay(const User &user);
+	void 						handleWho(const Command &);
+	void						createAndSendMessageOfTHeDay(const User &);
 	void						sendMOTD(const User &user);
-	void 						sendError(Command const &command , int errorCode );
+	void 						sendError(Command const &, int);
+	void 						sendReply(Command const &, int);
 	void 						killUser(User const &);
-	void 						printAllUsers(const Command &command);
 	//request handling implementations
 
 	void						messageOfTHeDay(User &user);
