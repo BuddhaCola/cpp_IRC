@@ -1,9 +1,9 @@
 #include <sstream>
 #include "../includes/Server.hpp"
-#include "../includes/allAnswers.hpp"
 
 void	Server::executeCommand(Command const &command){
-	std::stringstream logStream;
+	std::stringstream	logStream;
+	User				&user = command.getUser();
 	//allowed for unauthorized users
 	switch (command.getType()) {
 		case PASS:
@@ -15,6 +15,14 @@ void	Server::executeCommand(Command const &command){
 		case NICK:
 			handleSetNick(command);
 			return;
+		default:
+			break;
+	}
+	if (user.getNick().empty() || user.getUsername().empty()) {
+		//TODO errorhandle
+		//:irc.ircnet.su 451 privmsg :You have not registered
+	}
+	switch (command.getType()) {
 		case PING:
 			handlePing(command);
 			return;
@@ -27,10 +35,8 @@ void	Server::executeCommand(Command const &command){
 		default:
 			break;
 	}
-	if (!command.getUser().isAuthorized())
-	{
-		logStream << "unauthorized request from " << command.getUser();
-		logger.logMessage(logStream, ERROR);
+	if (!command.getUser().isAuthorized()) {
+		//TODO errorhandle "not registered (password not entered)"
 	}
 	else {
 		//not allowed for unauthorized users
@@ -39,13 +45,10 @@ void	Server::executeCommand(Command const &command){
 				handlePrivateMessage(command);
 				break;
 			case NOTICE:
-				handleNoticeMessage(command);
-				logStream << "NOTICE method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+//				handleNoticeMessage(command);
 				break;
 			case JOIN:
-				logStream << "JOIN method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleJoin(command);
 				break;
 			case OPER:
 				logStream << "OPER method is not implemented" << std::endl;
@@ -64,7 +67,8 @@ void	Server::executeCommand(Command const &command){
 				logger.logMessage(logStream, DEV);
 				break;
 			case WHO:
-				handleWho(command);
+				logStream << "WHO method is not implemented" << std::endl;
+				logger.logMessage(logStream, DEV);
 				break;
 			default:
 				break;
@@ -113,187 +117,47 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 		return commands;
 }
 
-//https://datatracker.ietf.org/doc/html/rfc2812#section-5.2
-void Server::handlePrivateMessage(const Command &command) {
-	if (command.getArguments().size() == 0) {
-		return sendError(command, ERR_NORECIPIENT);
-	}
-
-	if (command.getArguments().size() < 2) {
-		return sendError(command, ERR_NOTEXTTOSEND);
-	}
-
-	std::stringstream	logStream;
-	std::string			reciverNick = command.getArgument(0);
-	std::string			message = command.getArgument(1);
-	User				*reciver = 0;
-
-	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
-		if ((*it)->getNick() == reciverNick) {
-			reciver = (*it);
-			break;
+void Server::registerUserAndSendMOTD(User &user) {
+	if (user.isAuthorized() && !user.getNick().empty() && !user.getUsername().empty()) {
+		if (!user.isRegistered()) {
+			//prevent repeating MOTD sending
+			user.setRegistered(true);
+			createAndSendMessageOfTHeDay(user);
 		}
 	}
-	if (reciver) {
-		std::stringstream qtoSend;
-		qtoSend << ':' + command.getUser().getUserInfoString() <<  " " << "PRIVMSG" << " " << reciverNick << " :" << message << "\r\n";
-		std::string str = qtoSend.str();
-		write(reciver->getFd(), str.c_str(), str.size());
-		logger.logUserMessage(str, *reciver, OUT);
-	}
-	else
-	{
-		sendError(command, ERR_NOSUCHNICK);
-	}
-
-}
-
-void Server::handleNoticeMessage(const Command &command)
-{
-	std::stringstream	logStream;
-	if (command.getArguments().size() < 2 || command.getArguments().size() > 2) {
-		sendError(command, ERR_NORECIPIENT);
-	}
-}
-
-//https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.1
-void Server::handlePassword(const Command &command) {
-	std::stringstream logStream;
-
-	if (command.getArguments().size() != 1) {
-			logStream << "something went wrong" << std::endl; //TODO errorhandle
-			logger.logMessage(logStream, ERROR);
-			return;
-	}
-	if (command.getTextPart().empty()) {
-			logStream << "something went wrong" << std::endl; //TODO errorhandle
-			logger.logMessage(logStream, ERROR);
-			return;
-	}
-	std::string	userInput = trim(command.getTextPart());
-	User	&user = command.getUser();
-
-	if (!this->_password.empty()) {
-		if (userInput == this->getPassword()) {
-			user.setAuthorized(true);
-			sendMOTD(user);
-			return;
-		}
-		else {
-			//do something //TODO
-		}
-	}
-}
-
-//https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.2
-void Server::handleSetNick(const Command &command) {
-	std::stringstream logStream; //TODO add check if already exist
-
-	if (command.getArguments().size() != 1) {
-		logStream << "something went wrong" << std::endl; //TODO errorhandle
-		logger.logMessage(logStream, ERROR);
-	}
-	User &user = command.getUser();
-	std::string	nickToSet = trim(command.getArgument(0));
-	if (!checkIfNickRegistered(nickToSet)) {
-		sendError(command, ERR_NICKNAMEINUSE);
-		logStream << "nick " << nickToSet << " already registered" <<
-		std::endl; //TODO errorhandle
-		logger.logMessage(logStream, ERROR);
-	}
-	if (validateString(nickToSet)) {
-		user.setNick(nickToSet);
-		user.setNickLowercase(toLowercase(nickToSet)); //move it
-	}
-	else {
-		//errorhandle
-		logStream << "FAILED ";
-	}
-	logStream << "set nick user " << user;
-	logger.logMessage(logStream, INFO);
-	sendMOTD(user);
-}
-
-//https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.3
-//Command: USER
-//Parameters: <user> <mode> <unused> <realname>
-// Numeric Replies:
-//           ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
-void Server::handleUser(const Command &command) {
-	User	&user = command.getUser();
-	int		fd = user.getFd();
-//	int		mode = stoi(command.getArgument(1)); //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.5
-
-	if (command.getArguments().size() < 4) {
-		//ERR_NEEDMOREPARAMS
-	}
-	user.setUsername(command.getArgument(0));
-	user.setRealname(command.getArgument(3));
-	sendMOTD(user);
-}
-
-void Server::sendMOTD(User const &user) {
-	if (user.isAuthorized() && !user.getNick().empty() && !user.getUsername().empty())
-		createAndSendMessageOfTHeDay(user);
 }
 
 void Server::createAndSendMessageOfTHeDay(const User &user)
 {    //затычка
+	//TODO move it to the propper method
 	std::stringstream stream;
-	stream << ":My_IRC 375 " + user.getNick() + " :- irc.ircnet.su Message of the Day -\r\n";
+	stream << ":My_IRC 375 " + user.getNick() + " :- irc.ircnet.su Message of the Day -\r\n"; //TODO use
 	stream << ":My_IRC 372 " + user.getNick() + " wow\r\n";
 	stream << ":My_IRC 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
 	write(user.getFd(), mes_376.c_str(), mes_376.length());
 }
 
-void Server::handlePing(const Command &command) {
-	std::string reply;
-	User &user = command.getUser();
-	reply = "PONG ";
-	if (!command.getArguments().empty())
-		reply = reply.append(command.getArgument(0));
-	write(user.getFd(), reply.c_str(), reply.size());
-	logger.logUserMessage(reply, command.getUser(), OUT);
-}
-
-void Server::handlePong(const Command &command)
-{
-	logger.logUserMessage("User is still alive", command.getUser(), INFO);
-}
-
-void Server::handleWho(const Command &command)
-{
-	if (command.getUser().isAuthorized()) {
-		printAllUsers(command);
-		//TODO printAllChannels
-	}
-	else {
-		sendError(command, ERR_NOTREGISTERED);
-	}
-
-}
-void Server::printAllUsers(const Command &command)
-{
-	int userFd = command.getUser().getFd();
-	std::string message;
-	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
-		message = ":My_IRK " + std::to_string(RPL_WHOREPLY) + " " + command
-				.getUser().getNick() + " * " + (*it)->getNick() + "\r\n";
-		write(userFd, message.c_str(), message.length());
-	}
-}
-
-
 bool Server::checkIfNickRegistered(const std::string &nick) {
 	std::string lowerCased = toLowercase(nick);
 
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it)->getNickLowercase() == lowerCased) {
-			return false;
+			return true;
 		}
 	}
-	return true;
+	return false;
+}
+
+Channel *Server::findChannel(const std::string &channel) {
+	std::string lowerCased = toLowercase(channel);
+
+	for (std::vector<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+		if ((*it)->getNameLowercased() == lowerCased) {
+			return *(it);
+		}
+	}
+	return 0;
 }
 
 void Server::killUser(User const &user) {
@@ -304,19 +168,10 @@ void Server::killUser(User const &user) {
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
 			user.~User();
-			logStream << "User " << user.getNick() << "was removed from the "
+			logStream << "User " << user.getNick() << " was removed from the "
 				"server";
 			logger.logMessage(logStream, INFO);
 			break;
 		}
 	}
 }
-
-void Server::handleQuit(const Command &command) {
-	User &user = command.getUser();
-	killUser(user);
-}
-
-
-
-
