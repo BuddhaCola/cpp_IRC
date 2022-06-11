@@ -29,6 +29,7 @@ private:
 	int						_fd;
 	bool					_authorized;
 	bool					_registered;
+	bool					_oper; //* = global
 	std::time_t 			_timestamp;
 	std::string				_username;
 	std::string				_hostname;

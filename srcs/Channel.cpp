@@ -53,3 +53,13 @@ bool Channel::isOperator(User *user) {
 		return true;
 	return false;
 }
+
+User *Channel::findUserByNick(const std::string &nick) {
+	std::vector<User *>::iterator it = _users.begin();
+	while (it != _users.end()) {
+		if ((*it)->getNick() == nick) {
+			return (*it);
+		}
+	}
+	return 0;
+}

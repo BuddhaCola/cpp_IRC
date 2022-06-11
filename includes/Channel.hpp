@@ -20,6 +20,7 @@ public:
 	std::string			getNameLowercased();
 	void				setName(const std::string &name);
 	bool				isOperator(User *);
+	User				*findUserByNick(const std::string &nick);
 private:
 	std::string			_name;
 	std::vector<User *>	_users;

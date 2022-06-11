@@ -132,7 +132,7 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " :Permission Denied- You're not an IRC operator\n";
 			break;
 		case ERR_CHANOPRIVSNEEDED:
-			msg += " " + commandName + " :You're not channel operator\n";
+			msg += " " + commandName + ' ' + command.getArgument(0) + " :You're not channel operator\n";
 			break;
 		case ERR_CANTKILLSERVER:
 			msg += " :You cant kill a server!\n";

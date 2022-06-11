@@ -64,8 +64,6 @@ void	Server::executeCommand(Command const &command){
 				break;
 			case KICK:
 				handleKick(command);
-				logStream << "KICK method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
 				break;
 			case LIST:
 				logStream << "LIST method is not implemented" << std::endl;
@@ -182,7 +180,7 @@ void Server::killUser(User &user, std::string reason) {
 
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it) == &user) {
-			removeUserFromChannel(user, reason);
+			removeUserFromAllChannels(user, reason);
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
 			user.~User();
@@ -201,13 +199,16 @@ void Server::checkIfChannelEmpty(Channel *channel) {
 	}
 }
 
-void Server::removeUserFromChannel(User &user, const std::string &reason) {
+void Server::removeUserFromChannel(User &user, Channel &channel ,const std::string &reason) {
+	sendMessageToChannel(channel, ":" + user.getUserInfoString() + " QUIT :" + reason + "\r\n");
+	(channel).removeUser(&user);
+	checkIfChannelEmpty(&channel);
+}
+
+void Server::removeUserFromAllChannels(User &user, const std::string &reason) {
 	std::vector<Channel *> &channels = user.getChannels();
 	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
-		//:wow!qr@98.142.251.109 QUIT :Quit: bye-bye
-		sendMessageToChannel(*(*it), ":" + user.getUserInfoString() + " QUIT :" + reason + "\r\n");
-		(*it)->removeUser(&user);
-		checkIfChannelEmpty(*it);
+		removeUserFromChannel(user, *(*it), reason);
 	}
 }
 
@@ -215,7 +216,6 @@ void Server::sendMessageToUser(const Command &command) {
 	if (command.getArguments().size() == 0) {
 		return sendError(command, ERR_NORECIPIENT);
 	}
-
 	if (command.getArguments().size() < 2) {
 		return sendError(command, ERR_NOTEXTTOSEND);
 	}

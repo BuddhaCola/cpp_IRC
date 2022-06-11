@@ -57,7 +57,7 @@ private:
 	void						createAndSendMessageOfTHeDay(const User &user);
 	void						privmsgToUser(const Command &command);
 	void						privmsgToChannel(const Command &command);
-	void						removeUserFromChannel(User &user, const std::string &reason);
+	void						removeUserFromAllChannels(User &user, const std::string &reason);
 	void						sendMessageToChannel(const Channel &channel, std::string string);
 	void						sendMessageToChannel(Command const &);
 	void						sendMessageToUser(const Command &);
@@ -78,5 +78,7 @@ private:
 	void 						handleWho(const Command &);
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
+
+	void removeUserFromChannel(User &user, Channel &channel, const std::string &reason);
 };
 #endif //MY_IRC_SERVER_HPP
