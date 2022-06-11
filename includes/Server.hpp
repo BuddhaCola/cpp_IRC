@@ -46,21 +46,27 @@ private:
 	std::vector<User *>			_users;
 	std::vector<Channel *>		_channels; //https://datatracker.ietf.org/doc/html/rfc1459#section-1.3
 	Logger						logger;
-	
+
 	void						StartLogMessage();
 	void						handleRequest(char *request, User &user);
 	std::vector<Command>		parseRequest(std::string const &request, User &);
+	void						executeCommand(Command const &);
 	bool						checkIfNickRegistered(const std::string &nick);
 	Channel * findChannel(const std::string &channel);
 	void						registerUserAndSendMOTD(User &user);
 	void						createAndSendMessageOfTHeDay(const User &user);
 	void						privmsgToUser(const Command &command);
 	void						privmsgToChannel(const Command &command);
+	void						removeUserFromChannel(User &user, const std::string &reason);
 	void						sendMessageToChannel(const Channel &channel, std::string string);
-	void removeUserFromChannel(User &user, const std::string &reason);
+	void						sendMessageToChannel(Command const &);
+	void						sendMessageToUser(const Command &);
+	void						sendMOTD(const User &user);
+	void 						sendError(Command const &, int);
+	void 						sendReply(Command const &, int);
+	void						killUser(User &user, std::string reason);
+	void						checkIfChannelEmpty(Channel *channel);
 
-	//request handling implementations
-	void						executeCommand(Command const &);
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
 	void						handleSetNick(Command const &);
@@ -70,20 +76,7 @@ private:
 	void						handleQuit(const Command &);
 	void 						handleNoticeMessage(Command const &);
 	void 						handleWho(const Command &);
-	void						createAndSendMessageOfTHeDay(const User &);
-	void						sendMOTD(const User &user);
-	void 						sendError(Command const &, int);
-	void 						sendReply(Command const &, int);
-	void 						killUser(User const &);
-	//request handling implementations
-
 	void						handleJoin(const Command &command);
-	void 						sendError(Command const &command , int errorCode );
-	void killUser(User &user, std::string reason);
-
-	void checkIfChannelEmpty(Channel *channel);
-
-
-	void handleKick(const Command &);
+	void						handleKick(const Command &);
 };
 #endif //MY_IRC_SERVER_HPP

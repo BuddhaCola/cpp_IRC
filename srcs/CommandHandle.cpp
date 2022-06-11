@@ -143,21 +143,6 @@ void Server::createAndSendMessageOfTHeDay(const User &user)
 	write(user.getFd(), mes_376.c_str(), mes_376.length());
 }
 
-void Server::handlePing(const Command &command) {
-	std::string reply;
-	User &user = command.getUser();
-	reply = "PONG ";
-	if (!command.getArguments().empty())
-		reply = reply.append(command.getArgument(0));
-	write(user.getFd(), reply.c_str(), reply.size());
-	logger.logUserMessage(reply, command.getUser(), OUT);
-}
-
-void Server::handlePong(const Command &command)
-{
-	logger.logUserMessage("User is still alive", command.getUser(), INFO);
-}
-
 void Server::handleWho(const Command &command)
 {
 	if (!command.getArgument(0).empty()) {
@@ -226,11 +211,67 @@ void Server::removeUserFromChannel(User &user, const std::string &reason) {
 	}
 }
 
-void Server::handleQuit(const Command &command) {
-	User &user = command.getUser();
-	killUser(user);
+void Server::sendMessageToUser(const Command &command) {
+	if (command.getArguments().size() == 0) {
+		return sendError(command, ERR_NORECIPIENT);
+	}
+
+	if (command.getArguments().size() < 2) {
+		return sendError(command, ERR_NOTEXTTOSEND);
+	}
+
+	std::stringstream	logStream;
+	std::string			reciverNick = command.getArgument(0);
+	std::string			message = command.getArgument(1);
+	User				*reciver = 0;
+
+	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) { //TODO move to findUserByNick
+		if ((*it)->getNick() == reciverNick) {
+			reciver = (*it);
+			break;
+		}
+	}
+	if (reciver) {
+		std::stringstream qtoSend;
+		qtoSend << ':' + command.getUser().getUserInfoString() <<  " " << "PRIVMSG" << " " << reciverNick << " :" << message << "\r\n";
+		std::string str = qtoSend.str();
+		write(reciver->getFd(), str.c_str(), str.size());
+		logger.logUserMessage(str, *reciver, OUT);
+	}
+	else {
+		sendError(command, ERR_NOSUCHNICK);
+	}
 }
 
+void Server::sendMessageToChannel(Command const &command) {
+	if (command.getArguments().size() < 2) {
+		return sendError(command, ERR_NEEDMOREPARAMS);;
+	}
+	Channel *channel = findChannel(command.getArgument(0));
+	if (!channel) {
+		return sendError(command, ERR_NOSUCHCHANNEL);;
+	}
+	std::string string = command.getArgument(1);
+	std::vector<User *> users = channel->getUsers();
+	std::string	tosend;
+	//:doom!qr@188.242.23.62 PRIVMSG #wow :hey!
+	tosend += ':' + command.getUser().getUserInfoString() + ' ' + command.typeToString() + ' ' + channel->getName() + ' ' + string + "\r\n";
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
+		int fd = (*it)->getFd();
+		write(fd, tosend.c_str(), tosend.length());
+		logger.logUserMessage(tosend, *(*it), OUT);
+	}
+}
+
+void Server::sendMessageToChannel(const Channel &channel, std::string string) {
+	std::vector<User *>	users = channel.getUsers();
+
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
+		int fd = (*it)->getFd();
+		write(fd, string.c_str(), string.length());
+		logger.logUserMessage(string, *(*it), OUT);
+	}
+}
 
 
 

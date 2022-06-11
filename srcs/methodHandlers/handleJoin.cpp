@@ -9,10 +9,6 @@ void Server::handleJoin(const Command &command) {
 	if (channelName.at(0) != '#') {
 		sendError(command, 403);
 		return;
-//		//TODO bullshit
-//		std::string error = ":irc.ircnet.su 403 " + user.getNick() + " " + command.getArgument(0) +" :No such channel";
-//		write(user.getFd(), error.c_str(), error.length());
-//		logger.logUserMessage(error, user, OUT);
 	}
 	channel = findChannel(channelName);
 	if (!channel) {
@@ -26,18 +22,16 @@ void Server::handleJoin(const Command &command) {
 	else {
 		user.addChannel(channel);
 		channel->addUser(user);
-//		:irc.ircnet.su 353 pop = #ads :pop @realman
-//		:irc.ircnet.su 366 pop #ads :End of /NAMES list.
-		//list users
 	}
 	sendMessageToChannel(*channel, ":" + user.getUserInfoString() + " " + "JOIN" + " :" + channel->getName() + "\r\n"); //TODO bullshit
 
 	std::stringstream names;
-	std::vector<const User *> users = channel->getUsers();
+	std::vector<User *> users = channel->getUsers();
+	std::vector<User *> operators = channel->getOperators();
 	names << ":irc.ircnet.su 353 " << user.getNick() << " = " << channel->getName() << " :"; //TODO bullshit
 
-	for (std::vector<User const *>::iterator it = users.begin(); it != users.end(); ++it) {
-		if ((*it) == channel->getOper()) {
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
+		if (channel->isOperator((*it))) {
 			names << '@';
 		}
 		names << (*it)->getNick();
@@ -60,14 +54,4 @@ void Server::handleJoin(const Command &command) {
 	std::string endOfNamesListString = endOfNamesList.str();
 	write(user.getFd(), endOfNamesListString.c_str(), endOfNamesListString.length());
 	logger.logUserMessage(endOfNamesListString, user, OUT);
-}
-
-void Server::sendMessageToChannel(const Channel &channel, std::string string) {
-	std::vector<const User *> users = channel.getUsers();
-
-	for (std::vector<User const *>::iterator it = users.begin(); it != users.end(); ++it) {
-		int fd = (*it)->getFd();
-		write(fd, string.c_str(), string.length());
-		logger.logUserMessage(string, *(*it), OUT);
-	}
 }

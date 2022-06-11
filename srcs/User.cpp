@@ -4,11 +4,10 @@
 #include <unistd.h>
 #include <iostream>
 
-User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)) {
+User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp
-(std::time(NULL)) {
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false) {
 }
 
 User::~User() {
@@ -109,4 +108,20 @@ time_t User::getTimestamp() const
 void User::setTimestamp(time_t timestamp)
 {
 	_timestamp = timestamp;
+}
+
+bool User::isRegistered() const {
+	return _registered;
+}
+
+void User::setRegistered(bool registered) {
+	_registered = registered;
+}
+
+void User::addChannel(Channel *channel) {
+	_channels.push_back(channel);
+}
+
+std::vector<Channel *> & User::getChannels() {
+	return _channels;
 }

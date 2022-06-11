@@ -15,5 +15,5 @@ void Server::handleUser(const Command &command) {
 	}
 	user.setUsername(command.getArgument(0));
 	user.setRealname(command.getArgument(3));
-	registerUserAndSendMOTD(user);
+//	registerUserAndSendMOTD(user);
 }

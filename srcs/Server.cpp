@@ -127,10 +127,3 @@ Server &Server::operator=(const Server &other) {
 	this->_password = other._password;
 	return(*this);
 }
-
-
-
-
-
-
-

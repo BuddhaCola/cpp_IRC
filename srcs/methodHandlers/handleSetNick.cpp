@@ -28,5 +28,5 @@ void Server::handleSetNick(const Command &command) {
 	}
 	logStream << "set nick user " << user;
 	logger.logMessage(logStream, INFO);
-	registerUserAndSendMOTD(user);
+//	registerUserAndSendMOTD(user);
 }

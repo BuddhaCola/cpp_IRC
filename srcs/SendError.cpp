@@ -18,13 +18,13 @@ void Server::sendError(Command const &command , int errorCode )
 	switch (errorCode)
 	{
 		case ERR_NOSUCHNICK:
-			msg += " :No such nick/channel\n";
+			msg += ' ' + command.getArgument(0) + " :No such nick/channel\n";
 			break;
 		case ERR_NOSUCHSERVER:
 			msg += " :No such server\n";
 			break;
 		case ERR_NOSUCHCHANNEL:
-			msg += " :No such channel\n";
+			msg += ' ' + command.getArgument(0) + " :No such channel\n";
 			break;
 		case ERR_CANNOTSENDTOCHAN:
 			msg += " :Cannot send to channel\n";
