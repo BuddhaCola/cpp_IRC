@@ -9,19 +9,22 @@ void	Server::executeCommand(Command const &command){
 	switch (command.getType()) {
 		case PASS:
 			handlePassword(command);
+			registerUserAndSendMOTD(user);
 			return;
 		case USER:
 			handleUser(command);
+			registerUserAndSendMOTD(user);
 			return;
 		case NICK:
 			handleSetNick(command);
+			registerUserAndSendMOTD(user);
 			return;
 		default:
 			break;
 	}
 	if (user.getNick().empty() || user.getUsername().empty()) {
-		//TODO errorhandle
-		//:irc.ircnet.su 451 privmsg :You have not registered
+		sendError(command, 451);
+		return;
 	}
 	switch (command.getType()) {
 		case PING:
@@ -60,6 +63,7 @@ void	Server::executeCommand(Command const &command){
 				logger.logMessage(logStream, DEV);
 				break;
 			case KICK:
+				handleKick(command);
 				logStream << "KICK method is not implemented" << std::endl;
 				logger.logMessage(logStream, DEV);
 				break;
@@ -188,11 +192,12 @@ Channel *Server::findChannel(const std::string &channel) {
 	return 0;
 }
 
-void Server::killUser(User const &user) {
+void Server::killUser(User &user, std::string reason) {
 	std::stringstream logStream;
 
 	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it) == &user) {
+			removeUserFromChannel(user, reason);
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
 			user.~User();
@@ -201,6 +206,23 @@ void Server::killUser(User const &user) {
 			logger.logMessage(logStream, INFO);
 			break;
 		}
+	}
+}
+
+void Server::checkIfChannelEmpty(Channel *channel) {
+	if (channel->getUsers().empty()) {
+		std::vector<Channel *>::iterator it = std::find(_channels.begin(), _channels.end(), channel);
+		_channels.erase(it);
+	}
+}
+
+void Server::removeUserFromChannel(User &user, const std::string &reason) {
+	std::vector<Channel *> &channels = user.getChannels();
+	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+		//:wow!qr@98.142.251.109 QUIT :Quit: bye-bye
+		sendMessageToChannel(*(*it), ":" + user.getUserInfoString() + " QUIT :" + reason + "\r\n");
+		(*it)->removeUser(&user);
+		checkIfChannelEmpty(*it);
 	}
 }
 

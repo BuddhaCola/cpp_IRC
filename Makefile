@@ -18,7 +18,8 @@ SRC		=	srcs/main.cpp\
 			srcs/methodHandlers/handlePing.cpp\
 			srcs/methodHandlers/handlePong.cpp\
 			srcs/methodHandlers/handleJoin.cpp\
-			srcs/methodHandlers/handleQuit.cpp
+			srcs/methodHandlers/handleQuit.cpp\
+			srcs/methodHandlers/hancleKick.cpp
 
 CXX		= c++
 

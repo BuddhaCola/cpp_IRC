@@ -2,5 +2,9 @@
 
 void Server::handleQuit(const Command &command) {
 	User &user = command.getUser();
-	killUser(user);
+	std::string	reason;
+	if (!command.getArguments().empty()) {
+		reason = command.getArgument(0);
+	}
+	killUser(user, reason);
 }
