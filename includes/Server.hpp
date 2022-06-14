@@ -66,7 +66,7 @@ private:
 	void 						sendReply(Command const &, int);
 	void						killUser(User &user, std::string reason);
 	void						checkIfChannelEmpty(Channel *channel);
-
+	void printUsers(Command const &command);
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
 	void						handleSetNick(Command const &);
@@ -75,10 +75,15 @@ private:
 	void 						handlePong(const Command &);
 	void						handleQuit(const Command &);
 	void 						handleNoticeMessage(Command const &);
-	void 						handleWho(const Command &);
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
+	void 						handleWho(const Command &command);
 
 	void removeUserFromChannel(User &user, Channel &channel, const std::string &reason);
+
+
+	void printUser(const Command &command);
+
+	void printChannels(const Command &command);
 };
 #endif //MY_IRC_SERVER_HPP
