@@ -21,7 +21,7 @@
 #include "allAnswers.hpp"
 
 #define MAX_USERS 		1024
-#define POLL_TIMEOUT 	7000
+#define POLL_TIMEOUT 	3000
 #define TIMEOUT 		15
 
 class Server {
@@ -84,6 +84,6 @@ private:
 
 	void printUser(const Command &command);
 
-	void printChannels(const Command &command);
+	void printChannel(const Command &command);
 };
 #endif //MY_IRC_SERVER_HPP
