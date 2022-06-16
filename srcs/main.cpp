@@ -3,22 +3,20 @@
 #include "../includes/Server.hpp"
 #include <stdlib.h>
 
-#define DEBUG
-
 void validateArguments(int ac, char **av) {
 	if (ac < 2) {
-		std::cout << "Usage: ./ircserv <port> <password>" << std::endl;
-		std::cout << "too low arguments!" << std::endl;
+		std::cout << "Usage: ./ircserv <port> <Password>" << std::endl;
+		std::cout << "too low _arguments!" << std::endl;
 		exit(-1);
 	}
 	if (ac > 2) {
 		if (ac > 3) {
-			std::cout << "Usage: ./ircserv <port> <password>" << std::endl;
-			std::cerr << "Too many arguments!" << std::endl;
+			std::cout << "Usage: ./ircserv <port> <Password>" << std::endl;
+			std::cerr << "Too many _arguments!" << std::endl;
 			exit(-1);
 		}
 		if (strlen(av[2]) == 0) {
-			std::cerr << "_password can't be an empty string" << std::endl;
+			std::cerr << "Password can't be an empty string" << std::endl;
 			exit(-1);
 		}
 	}
@@ -28,7 +26,7 @@ void validateArguments(int ac, char **av) {
 	}
 	catch (std::exception &e) {
 		std::cerr << "invalid argument: port" << std::endl;
-#ifdef DEBUG
+#ifdef MORE_INFO
 		std::cerr << CYAN << e.what() << RESET << std::endl;
 #endif
 		exit(-1);
@@ -40,12 +38,14 @@ int main(int ac, char **av)
 	validateArguments(ac, av);
 	std::string password = ac == 3 ? std::string(av[2]) : std::string();
 	try {
+		signal(SIGPIPE, SIG_IGN);
 		Server server = Server(Server(std::stoi(av[1]), password));
-		server.startLoop();
+		int listen_sock = server.creatListenSocket(server.getPort());
+		server.mainLoop(listen_sock);
 	}
 	catch (std::exception &e) {
 		std::cerr << "An error occurred" << std::endl;
-		#ifdef DEBUG
+		#ifdef MORE_INFO
 		std::cerr << CYAN << e.what() << RESET << std::endl;
 		#endif
 		exit(-1);

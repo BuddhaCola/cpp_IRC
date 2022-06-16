@@ -2,11 +2,28 @@ NAME	= ircserv
 
 SRC		=	srcs/main.cpp\
  			srcs/User.cpp\
- 			srcs/Server.cpp
+ 			srcs/Server.cpp\
+ 			srcs/Utils.cpp\
+ 			srcs/Logger.cpp\
+ 			srcs/Channel.cpp\
+ 			srcs/CommandHandle.cpp\
+ 			srcs/Command.cpp\
+ 			srcs/Poll.cpp\
+ 			srcs/SendError.cpp\
+ 			srcs/PingClient.cpp\
+			srcs/methodHandlers/handlePrivateMessage.cpp\
+			srcs/methodHandlers/handlePassword.cpp\
+			srcs/methodHandlers/handleSetNick.cpp\
+			srcs/methodHandlers/handleUser.cpp\
+			srcs/methodHandlers/handlePing.cpp\
+			srcs/methodHandlers/handlePong.cpp\
+			srcs/methodHandlers/handleJoin.cpp\
+			srcs/methodHandlers/handleQuit.cpp\
+			srcs/methodHandlers/handleKick.cpp
 
 CXX		= c++
 
-CPPFLAGS	= -g -std=c++98 #-Wall -Wextra -Werror
+CPPFLAGS	= -g# -std=c++98 -Wall -Wextra -Werror
 
 OBJ		= $(SRC:.cpp=.o)
 

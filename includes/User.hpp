@@ -3,17 +3,57 @@
 
 #include <string>
 #include <vector>
+#include <ctime>
+#include "Channel.hpp"
+
+class Channel;
 
 class User {
 public:
 	User();
-	int 		getFd() const;
-	std::string	getNick() const;
-	User & operator= (const User &other);
+	User(int);
+	int 					getFd() const;
+	std::string				getNick() const;
+	void 					setNick(std::string nick);
+	bool					isAuthorized() const;
+	void					setAuthorized(bool authorized);
+	bool					isRegistered() const;
+	void					setRegistered(bool registered);
+	User &					operator= (const User &other);
+	std::ostream&			operator<<(std::ostream &);
+	friend std::ostream&	operator<< (std::ostream&, const User&);
 	~User();
 private:
-	int 		_fd;
-	std::string	_nick;
+	std::string				_nick;
+	std::string				_nickLowercase;
+	int						_fd;
+	bool					_authorized;
+	bool					_registered;
+	bool					_oper; //* = global
+	std::time_t 			_timestamp;
+	std::string				_username;
+	std::string				_hostname;
+	std::string				_realname;
+	std::string				_IP;
+	int 					_port;
+	std::vector<Channel *>	_channels;
+
+public:
+	const std::string		&getNickLowercase() const;
+	void					setNickLowercase(const std::string &nickLowercase);
+	const					std::string &getIp() const;
+	void					setIp(const std::string &ip);
+	int						getPort() const;
+	void					setPort(int port);
+	std::vector<Channel *>	&getChannels();
+	const std::string		&getUsername() const;
+	void					setUsername(const std::string &username);
+	const std::string		&getRealname() const;
+	void					setRealname(const std::string &realname);
+	std::string				getUserInfoString();
+	time_t					getTimestamp() const;
+	void					setTimestamp(time_t timestamp);
+	void					addChannel(Channel *);
 };
 
 #endif //MY_IRC_USER_HPP
