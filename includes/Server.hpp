@@ -21,8 +21,8 @@
 #include "allAnswers.hpp"
 
 #define MAX_USERS 		1024
-#define POLL_TIMEOUT 	7000
-#define TIMEOUT 		15
+#define POLL_TIMEOUT 	30000
+#define TIMEOUT 		80
 
 class Server {
 public:
@@ -75,10 +75,15 @@ private:
 	void 						handlePong(const Command &);
 	void						handleQuit(const Command &);
 	void 						handleNoticeMessage(Command const &);
-	void 						handleWho(const Command &);
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
+	void 						handleWho(const Command &command);
 
 	void removeUserFromChannel(User &user, Channel &channel, const std::string &reason);
+
+
+	void printUser(const Command &command);
+
+	void printChannel(const Command &command);
 };
 #endif //MY_IRC_SERVER_HPP

@@ -28,7 +28,8 @@ void Server::handleJoin(const Command &command) {
 	std::stringstream names;
 	std::vector<User *> users = channel->getUsers();
 	std::vector<User *> operators = channel->getOperators();
-	names << ":irc.ircnet.su 353 " << user.getNick() << " = " << channel->getName() << " :"; //TODO bullshit
+	names << ":My_IRC 353 " << user.getNick() << " = " << channel->getName() <<
+	" :"; //TODO bullshit
 
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
 		if (channel->isOperator((*it))) {

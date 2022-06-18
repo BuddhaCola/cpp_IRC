@@ -10,7 +10,9 @@ void		Server::sendReply(Command const &command, int replyCode)
 	std::stringstream	ss;
 	User &user = command.getUser();
 	std::string commandName = command.typeToString();
-	std::vector<std::string> const &arguments = command.getArguments();
+	if (command.getArguments().size() != 0) {
+		std::vector<std::string> const &arguments = command.getArguments();
+	}
 	ss << replyCode;
 	msg += ss.str() + " " + user.getNick();
 	switch (replyCode)
@@ -34,7 +36,7 @@ void		Server::sendReply(Command const &command, int replyCode)
 			msg +=  + " :Summoning user to IRC\n";
 			break;
 		case RPL_ENDOFWHO:
-			msg +=  + " :End of /WHO list\n";
+			msg += " " + command.getArgument(0) + " :End of /WHO list\n";
 			break;
 		case RPL_ENDOFNAMES:
 			msg +=  + " :End of /NAMES list\n";

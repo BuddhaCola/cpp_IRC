@@ -14,7 +14,7 @@ void Server::pingClient()
 		logger.logUserMessage(pingString, user, OUT);
 		write(user.getFd(), pingString.c_str(), pingString.length());
 		timeNow = std::time(NULL);
-		if (timeNow - user.getTimestamp() >= TIMEOUT) {
+		if (timeNow - user.getTimestamp() > TIMEOUT) {
 			std::string message = "ERROR :Closing Link: [" + user.getIp() + "] "
 				"(Ping timeout: "+ std::to_string(TIMEOUT) + " seconds)\n";
 			write(user.getFd(), message.c_str(), message.length());

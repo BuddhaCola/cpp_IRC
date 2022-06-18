@@ -23,7 +23,7 @@ void	Server::executeCommand(Command const &command){
 			break;
 	}
 	if (user.getNick().empty() || user.getUsername().empty()) {
-		sendError(command, 451);
+		sendError(command, ERR_NOTREGISTERED);
 		return;
 	}
 	switch (command.getType()) {
@@ -40,7 +40,9 @@ void	Server::executeCommand(Command const &command){
 			break;
 	}
 	if (!command.getUser().isAuthorized()) {
-		//TODO errorhandle "not registered (password not entered)"
+		return sendError(command, ERR_NOTREGISTERED);//TODO errorhandle "not
+		// registered (password not
+		// entered)"
 	}
 	else {
 		//not allowed for unauthorized users
@@ -70,8 +72,7 @@ void	Server::executeCommand(Command const &command){
 				logger.logMessage(logStream, DEV);
 				break;
 			case WHO:
-				logStream << "WHO method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleWho(command);
 				break;
 			default:
 				break;
@@ -139,18 +140,6 @@ void Server::createAndSendMessageOfTHeDay(const User &user)
 	stream << ":My_IRC 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
 	write(user.getFd(), mes_376.c_str(), mes_376.length());
-}
-
-void Server::handleWho(const Command &command)
-{
-	if (!command.getArgument(0).empty()) {
-
-		sendReply(command,RPL_ENDOFWHO);
-	}
-	else
-	{
-		//TODO printAllChannels();
-	}
 }
 
 bool Server::checkIfNickRegistered(const std::string &nick) {
@@ -272,6 +261,12 @@ void Server::sendMessageToChannel(const Channel &channel, std::string string) {
 		logger.logUserMessage(string, *(*it), OUT);
 	}
 }
+
+
+
+
+
+
 
 
 
