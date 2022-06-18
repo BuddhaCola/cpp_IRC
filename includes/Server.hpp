@@ -21,8 +21,8 @@
 #include "allAnswers.hpp"
 
 #define MAX_USERS 		1024
-#define POLL_TIMEOUT 	3000
-#define TIMEOUT 		15
+#define POLL_TIMEOUT 	30000
+#define TIMEOUT 		80
 
 class Server {
 public:
@@ -66,7 +66,7 @@ private:
 	void 						sendReply(Command const &, int);
 	void						killUser(User &user, std::string reason);
 	void						checkIfChannelEmpty(Channel *channel);
-	void printUsers(Command const &command);
+
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
 	void						handleSetNick(Command const &);
