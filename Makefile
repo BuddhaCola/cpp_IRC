@@ -22,6 +22,7 @@ SRC		=	srcs/main.cpp\
 			srcs/methodHandlers/handleQuit.cpp\
 			srcs/methodHandlers/handleKick.cpp\
 			srcs/methodHandlers/handleWho.cpp\
+			srcs/methodHandlers/handleNoticeMessage.cpp
 
 
 CXX		= c++

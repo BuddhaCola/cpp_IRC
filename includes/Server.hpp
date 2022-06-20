@@ -60,7 +60,7 @@ private:
 	void						removeUserFromAllChannels(User &user, const std::string &reason);
 	void						sendMessageToChannel(const Channel &channel, std::string string);
 	void						sendMessageToChannel(Command const &);
-	void						sendMessageToUser(const Command &);
+	void sendMessageToUser(const Command &, std::string reason);
 	void						sendMOTD(const User &user);
 	void 						sendError(Command const &, int);
 	void 						sendReply(Command const &, int);
@@ -70,11 +70,11 @@ private:
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
 	void						handleSetNick(Command const &);
-	void						handlePrivateMessage(Command const &);
-	void						handlePing(Command const &);
+	void						handlePrivateMessage(const Command &);
+	void						handlePing(const Command  &);
 	void 						handlePong(const Command &);
 	void						handleQuit(const Command &);
-	void 						handleNoticeMessage(Command const &);
+	void 						handleNoticeMessage(const Command &);
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
 	void 						handleWho(const Command &command);
