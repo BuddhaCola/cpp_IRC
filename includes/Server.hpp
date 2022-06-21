@@ -21,8 +21,8 @@
 #include "allAnswers.hpp"
 
 #define MAX_USERS 		1024
-#define POLL_TIMEOUT 	30000
-#define TIMEOUT 		80
+#define POLL_TIMEOUT 	40000
+#define TIMEOUT 		180
 
 class Server {
 public:
