@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../includes/my_irc.hpp"
+#include "../includes/My_irc.hpp"
 #include "../includes/Server.hpp"
 #include <stdlib.h>
 
@@ -33,14 +33,14 @@ void validateArguments(int ac, char **av) {
 	}
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av) //TODO fix segfault on start of second server
 {
 	validateArguments(ac, av);
 	std::string password = ac == 3 ? std::string(av[2]) : std::string();
 	try {
 		signal(SIGPIPE, SIG_IGN);
 		Server server = Server(Server(std::stoi(av[1]), password));
-		int listen_sock = server.creatListenSocket(server.getPort());
+		int listen_sock = server.createListenSocket(server.getPort());
 		server.mainLoop(listen_sock);
 	}
 	catch (std::exception &e) {

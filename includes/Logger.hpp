@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "User.hpp"
-#include "my_irc.hpp"
+#include "My_irc.hpp"
 
 #define MODE std::fstream::in | std::fstream::out | std::fstream::app
 

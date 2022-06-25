@@ -8,7 +8,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 Server::Server() : _port(-1), _password(std::string()) {
 }
 
-int Server::creatListenSocket(int port)
+int Server::createListenSocket(int port)
 {
 	int sock = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
 	if( sock < 0 )
@@ -82,7 +82,7 @@ User * Server::checkFdUser(int i)
 	return user;
 }
 
-void Server::readFromBuffer(int i)
+void Server::readFromBuffer(int i) //TODO the fuck?
 {
 	std::stringstream logStream;
 
@@ -117,8 +117,7 @@ std::string Server::getPassword() const {
 	return this->_password;
 }
 
-int Server::getPort() const
-{
+int Server::getPort() const {
 	return this->_port;
 }
 

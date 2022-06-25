@@ -85,17 +85,24 @@ void Server::handleRequest(char *request, User &user) {
 
 	user.setTimestamp(std::time(NULL));
 	logger.logUserMessage(std::string(request), user, IN);
-	commands = parseRequest(std::string(request), user);
-	for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it) {
 		try {
-			executeCommand(*it);
+			commands = parseRequest(std::string(request), user);
+			for (std::vector<Command>::iterator it = commands.begin(); it != commands.end(); ++it)
+				executeCommand(*it);
+		}
+		catch (std::out_of_range &e) {
+			std::stringstream logStream;
+			logStream << "FAILED to execute command: " << request;
+			logStream << "caught exception of type std::out_of_range: ";
+			logStream << e.what();
+			logger.logMessage(logStream, ERROR);
 		}
 		catch (std::exception &e) {
 			std::stringstream logStream;
 			logStream << "FAILED to execute command: " << request;
+			logStream << e.what();
 			logger.logMessage(logStream, ERROR);
 		}
-	}
 }
 
 std::vector<Command> Server::parseRequest(std::string const &request, User &user) {
@@ -114,7 +121,12 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 			commands.push_back(Command(current, user));
 		}
 		catch (FtException &e) {
+				//TODO sendError(current, 421);
 				logStream << "unrecognized request: \"" << current << '\"' << std::endl;
+				logger.logMessage(logStream, ERROR);
+		}
+		catch (std::exception &e) {
+				logStream << "something went wrong: \"" << current << '\"' << std::endl;
 				logger.logMessage(logStream, ERROR);
 			}
 		}
@@ -132,7 +144,7 @@ void Server::registerUserAndSendMOTD(User &user) {
 }
 
 void Server::createAndSendMessageOfTHeDay(const User &user)
-{    //затычка
+{
 	//TODO move it to the propper method
 	std::stringstream stream;
 	stream << ":My_IRC 375 " + user.getNick() + " :- irc.ircnet.su Message of the Day -\r\n"; //TODO use
@@ -214,12 +226,7 @@ void Server::sendMessageToUser(const Command &command) {
 	std::string			message = command.getArgument(1);
 	User				*reciver = 0;
 
-	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) { //TODO move to findUserByNick
-		if ((*it)->getNick() == reciverNick) {
-			reciver = (*it);
-			break;
-		}
-	}
+	reciver = findUserByNick(reciverNick);
 	if (reciver) {
 		std::stringstream qtoSend;
 		qtoSend << ':' + command.getUser().getUserInfoString() <<  " " << "PRIVMSG" << " " << reciverNick << " :" << message << "\r\n";
@@ -260,6 +267,19 @@ void Server::sendMessageToChannel(const Channel &channel, std::string string) {
 		write(fd, string.c_str(), string.length());
 		logger.logUserMessage(string, *(*it), OUT);
 	}
+}
+
+User *Server::findUserByNick(std::string &reciverNick) { //TODO move it
+	User *reciver = 0;
+	std::string	reciverNickLowercased = toLowercase(reciverNick);
+
+	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) { //TODO move to findUserByNick
+		if ((*it)->getNickLowercase() == reciverNickLowercased) {
+			reciver = (*it);
+			break;
+		}
+	}
+	return reciver;
 }
 
 

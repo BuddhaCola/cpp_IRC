@@ -10,7 +10,7 @@ SRC		=	srcs/main.cpp\
  			srcs/Command.cpp\
  			srcs/Poll.cpp\
  			srcs/SendError.cpp\
- 			srcs/sendReply.cpp\
+ 			srcs/SendReply.cpp\
  			srcs/PingClient.cpp\
 			srcs/methodHandlers/handlePrivateMessage.cpp\
 			srcs/methodHandlers/handlePassword.cpp\
