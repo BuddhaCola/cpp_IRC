@@ -250,10 +250,12 @@ void Server::sendMessageToChannel(Command const &command) {
 	std::string string = command.getArgument(1);
 	std::vector<User *> users = channel->getUsers();
 	std::string	tosend;
-	//:doom!qr@188.242.23.62 PRIVMSG #wow :hey!
+
 	tosend += ':' + command.getUser().getUserInfoString() + ' ' + command.typeToString() + ' ' + channel->getName() + ' ' + string + "\r\n";
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
 		int fd = (*it)->getFd();
+		if (fd == command.getUser().getFd())
+			continue;
 		write(fd, tosend.c_str(), tosend.length());
 		logger.logUserMessage(tosend, *(*it), OUT);
 	}
