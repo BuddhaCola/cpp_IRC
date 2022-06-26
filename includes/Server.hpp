@@ -16,7 +16,7 @@
 #include "User.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
-#include "my_irc.hpp"
+#include "My_irc.hpp"
 #include "Logger.hpp"
 #include "allAnswers.hpp"
 
@@ -31,7 +31,7 @@ public:
 	User * 						checkFdUser(int i);
 	void 						readFromBuffer(int i);
 	void 						pollDefault(int listen_sock);
-	int 						creatListenSocket(int);
+	int 						createListenSocket(int);
 	void						mainLoop(int);
 	std::string					getPassword() const;
 	int 						getPort() const;
@@ -55,17 +55,18 @@ private:
 	Channel * findChannel(const std::string &channel);
 	void						registerUserAndSendMOTD(User &user);
 	void						createAndSendMessageOfTHeDay(const User &user);
-	void						privmsgToUser(const Command &command);
-	void						privmsgToChannel(const Command &command);
 	void						removeUserFromAllChannels(User &user, const std::string &reason);
 	void						sendMessageToChannel(const Channel &channel, std::string string);
 	void						sendMessageToChannel(Command const &);
 	void						sendMessageToUser(const Command &);
-	void						sendMOTD(const User &user);
 	void 						sendError(Command const &, int);
 	void 						sendReply(Command const &, int);
 	void						killUser(User &user, std::string reason);
 	void						checkIfChannelEmpty(Channel *channel);
+	void						removeUserFromChannel(User &user, Channel &channel, const std::string &reason);
+	void						printUser(const Command &command);
+	void						printChannel(const Command &command);
+	User						*findUserByNick(std::string &);
 
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
@@ -78,12 +79,5 @@ private:
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
 	void 						handleWho(const Command &command);
-
-	void removeUserFromChannel(User &user, Channel &channel, const std::string &reason);
-
-
-	void printUser(const Command &command);
-
-	void printChannel(const Command &command);
 };
 #endif //MY_IRC_SERVER_HPP

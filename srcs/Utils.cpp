@@ -1,6 +1,6 @@
 #include <string>
 #include <vector>
-#include "../includes/my_irc.hpp"
+#include "../includes/My_irc.hpp"
 
 bool	allowedCharacter(char c) {
 	if ((c >= 65 && c <= 90) /*'A'-'Z'*/ || (c >= 97 && c <= 123) /*'a'-'z'*/ || (c >= 48 && c <= 57) /*'0'-'9'*/ || (c == '-' || c == '_'))

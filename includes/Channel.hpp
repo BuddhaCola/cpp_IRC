@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "User.hpp"
-#include "my_irc.hpp"
+#include "My_irc.hpp"
 
 class User;
 

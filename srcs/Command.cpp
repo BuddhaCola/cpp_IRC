@@ -1,6 +1,6 @@
 #include <sstream>
 #include "../includes/Command.hpp"
-#include "../includes/my_irc.hpp"
+#include "../includes/My_irc.hpp"
 
 CommandEnum verbToCommand(std::string &verb) {
 	return CommandEnum(std::find(CommandNames, CommandNames + UNDEFINED, verb) - CommandNames);
@@ -48,7 +48,7 @@ Command &Command::operator=(const Command &other) {
 }
 
 Command::Command(const Command &other) : _type(other.getType()), _user(other.getUser()), _arguments(other._arguments) {
-	if (other._textPart) {
+	if (other._textPart && _arguments.size() > 0) {
 		_textPart = &_arguments.at(_arguments.size() - 1);
 	}
 }

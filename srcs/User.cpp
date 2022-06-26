@@ -10,7 +10,7 @@ User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)), _regi
 User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false) {
 }
 
-User::~User() {
+User::~User() { //user isn't deleted on quit
 	close(_fd);
 }
 
