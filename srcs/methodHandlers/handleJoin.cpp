@@ -20,8 +20,10 @@ void Server::handleJoin(const Command &command) {
 		channel->setOper(&user);
 	}
 	else {
-		user.addChannel(channel);
-		channel->addUser(user);
+		if (std::find(user.getChannels().begin(), user.getChannels().end(), channel) == user.getChannels().end()) {
+			user.addChannel(channel);
+			channel->addUser(user);
+		}
 	}
 	sendMessageToChannel(*channel, ":" + user.getUserInfoString() + " " + "JOIN" + " :" + channel->getName() + "\r\n"); //TODO bullshit
 

@@ -54,6 +54,7 @@ public:
 	time_t					getTimestamp() const;
 	void					setTimestamp(time_t timestamp);
 	void					addChannel(Channel *);
+	void					removeChannel(Channel *channel);
 };
 
 #endif //MY_IRC_USER_HPP

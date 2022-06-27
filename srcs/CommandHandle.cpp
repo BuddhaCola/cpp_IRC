@@ -71,6 +71,9 @@ void	Server::executeCommand(Command const &command){
 				logStream << "LIST method is not implemented" << std::endl;
 				logger.logMessage(logStream, DEV);
 				break;
+			case PART:
+				handlePart(command);
+				break;
 			case WHO:
 				handleWho(command);
 				break;
@@ -186,7 +189,7 @@ void Server::killUser(User &user, std::string reason) {
 			fd_list[user.getFd() - 3].fd = -1;
 			user.~User();
 			logStream << "User " << user.getNick() << " was removed from the "
-				"server";
+				"server"; //TODO remove
 			logger.logMessage(logStream, INFO);
 			break;
 		}
@@ -201,8 +204,9 @@ void Server::checkIfChannelEmpty(Channel *channel) {
 }
 
 void Server::removeUserFromChannel(User &user, Channel &channel ,const std::string &reason) {
-	sendMessageToChannel(channel, ":" + user.getUserInfoString() + " QUIT :" + reason + "\r\n");
+	sendMessageToChannel(channel, ":" + reason + "\r\n");
 	(channel).removeUser(&user);
+	user.removeChannel(&channel);
 	checkIfChannelEmpty(&channel);
 }
 
@@ -210,6 +214,8 @@ void Server::removeUserFromAllChannels(User &user, const std::string &reason) {
 	std::vector<Channel *> &channels = user.getChannels();
 	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
 		removeUserFromChannel(user, *(*it), reason);
+		if (channels.empty())
+			break;
 	}
 }
 

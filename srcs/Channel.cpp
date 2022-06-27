@@ -60,6 +60,7 @@ User *Channel::findUserByNick(const std::string &nick) {
 		if ((*it)->getNick() == nick) {
 			return (*it);
 		}
+		it++;
 	}
 	return 0;
 }

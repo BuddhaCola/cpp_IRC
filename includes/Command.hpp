@@ -20,7 +20,8 @@ X(KILL),\
 X(KICK),\
 X(PING),\
 X(LIST),\
-X(WHO)
+X(WHO),\
+X(PART)
 
 //enum representation
 #define X(e) e

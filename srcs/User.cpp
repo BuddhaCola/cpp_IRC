@@ -122,6 +122,11 @@ void User::addChannel(Channel *channel) {
 	_channels.push_back(channel);
 }
 
+void User::removeChannel(Channel *channel) {
+	std::vector<Channel *>::iterator toRemove = std::find(_channels.begin(), _channels.end(), channel);
+	_channels.erase(toRemove);
+}
+
 std::vector<Channel *> & User::getChannels() {
 	return _channels;
 }
