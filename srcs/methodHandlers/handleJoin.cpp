@@ -12,12 +12,18 @@ void Server::handleJoin(const Command &command) {
 	}
 	channel = findChannel(channelName);
 	if (!channel) {
-		//channel does not exist
-		channel = new Channel(channelName);
-		_channels.push_back(channel);
-		user.addChannel(channel);
-		channel->addUser(user);
-		channel->setOper(&user);
+		try {
+			//channel does not exist
+			channel = new Channel(channelName);
+			_channels.push_back(channel);
+			user.addChannel(channel);
+			channel->addUser(user);
+			channel->setOper(&user);
+		}
+		catch (FtException &e) {
+			sendError(command, ERR_NOSUCHCHANNEL);
+			return;
+		}
 	}
 	else {
 		if (std::find(user.getChannels().begin(), user.getChannels().end(), channel) == user.getChannels().end()) {

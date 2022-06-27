@@ -8,8 +8,8 @@ bool	allowedCharacter(char c) {
 	return false;
 }
 
-bool validateString(std::string &string) {
-	for (std::vector<char>::iterator it = string.begin(); it != string.end(); ++it)
+bool validateString(const std::string &string) {
+	for (std::vector<const char>::iterator it = string.begin(); it != string.end(); ++it)
 		if (!allowedCharacter(*it))
 			return false;
 	return true;
