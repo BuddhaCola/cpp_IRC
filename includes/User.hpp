@@ -50,7 +50,7 @@ public:
 	void					setUsername(const std::string &username);
 	const std::string		&getRealname() const;
 	void					setRealname(const std::string &realname);
-	std::string				getUserInfoString();
+	std::string				getUserInfoString() const;
 	time_t					getTimestamp() const;
 	void					setTimestamp(time_t timestamp);
 	void					addChannel(Channel *);

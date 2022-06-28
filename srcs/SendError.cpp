@@ -68,7 +68,7 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " :No nickname given\n";
 			break;
 		case ERR_ERRONEUSNICKNAME:
-			msg += " " + commandName + " :Erroneus nickname\n";
+			msg += " " + command.getArgument(0) + " :Erroneus nickname\n";
 			break;
 		case ERR_NICKNAMEINUSE:
 			msg += " * :Nickname is already in use.\n";

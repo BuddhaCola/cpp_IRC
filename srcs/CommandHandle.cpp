@@ -40,9 +40,7 @@ void	Server::executeCommand(Command const &command){
 			break;
 	}
 	if (!command.getUser().isAuthorized()) {
-		return sendError(command, ERR_NOTREGISTERED);//TODO errorhandle "not
-		// registered (password not
-		// entered)"
+		return sendError(command, ERR_NOTREGISTERED);
 	}
 	else {
 		//not allowed for unauthorized users
