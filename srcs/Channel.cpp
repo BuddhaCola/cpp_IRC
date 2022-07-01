@@ -1,6 +1,8 @@
 #include "../includes/Channel.hpp"
 
 Channel::Channel(const std::string &name) : _name(name) {
+	if (!validateString(name.substr(1, name.size())))
+		throw FtException();
 }
 
 Channel::Channel() {
@@ -60,6 +62,7 @@ User *Channel::findUserByNick(const std::string &nick) {
 		if ((*it)->getNick() == nick) {
 			return (*it);
 		}
+		it++;
 	}
 	return 0;
 }

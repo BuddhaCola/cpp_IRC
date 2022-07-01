@@ -67,6 +67,7 @@ private:
 	void						printUser(const Command &command);
 	void						printChannel(const Command &command);
 	User						*findUserByNick(std::string &);
+	std::vector<User *>			collectToKickList(const Command &command, Channel *channel);
 
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
@@ -79,5 +80,7 @@ private:
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
 	void 						handleWho(const Command &command);
+	void						handlePart(const Command &command);
+
 };
 #endif //MY_IRC_SERVER_HPP

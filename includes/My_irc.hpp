@@ -16,7 +16,7 @@ public:
 	}
 };
 
-bool	validateString(std::string &);
+bool						validateString(const std::string &);
 std::string					trim(const std::string &);
 std::string					getmessage(std::string &);
 std::string					toLowercase(std::string const &);

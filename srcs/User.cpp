@@ -40,15 +40,17 @@ void User::setAuthorized(bool authorized) {
 }
 std::ostream &User::operator<<(std::ostream &os) {
 	os << "fd: " << _fd;
-	if (!_nick.empty())
-		os << " nick " << _nick;
+//	if (!_nick.empty())
+//		os << " nick " << _nick;
+	os << ' ' << this->getUserInfoString();
 	return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const User &user) {
 	os << "fd " << user.getFd();
-	if (!user.getNick().empty())
-		os << " nick " << user.getNick();
+//	if (!user.getNick().empty())
+//		os << " nick " << user.getNick();
+	os << ' ' << user.getUserInfoString();
 	return os;
 }
 
@@ -92,7 +94,7 @@ void User::setNickLowercase(const std::string &nickLowercase) {
 	_nickLowercase = nickLowercase;
 }
 
-std::string User::getUserInfoString() {
+std::string User::getUserInfoString() const {
 	std::string info;
 
 	info = this->getNick() + "!" + this->getUsername() + "@" + this->getIp();
@@ -120,6 +122,11 @@ void User::setRegistered(bool registered) {
 
 void User::addChannel(Channel *channel) {
 	_channels.push_back(channel);
+}
+
+void User::removeChannel(Channel *channel) {
+	std::vector<Channel *>::iterator toRemove = std::find(_channels.begin(), _channels.end(), channel);
+	_channels.erase(toRemove);
 }
 
 std::vector<Channel *> & User::getChannels() {

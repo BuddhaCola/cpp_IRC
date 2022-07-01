@@ -68,7 +68,7 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " :No nickname given\n";
 			break;
 		case ERR_ERRONEUSNICKNAME:
-			msg += " " + commandName + " :Erroneus nickname\n";
+			msg += " " + command.getArgument(0) + " :Erroneus nickname\n";
 			break;
 		case ERR_NICKNAMEINUSE:
 			msg += " * :Nickname is already in use.\n";
@@ -134,7 +134,7 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " :Permission Denied- You're not an IRC operator\n";
 			break;
 		case ERR_CHANOPRIVSNEEDED:
-			msg += " " + commandName + ' ' + command.getArgument(0) + " :You're not channel operator\n";
+			msg += " " + command.getArgument(0) + " :You're not channel operator\n";
 			break;
 		case ERR_CANTKILLSERVER:
 			msg += " :You cant kill a server!\n";

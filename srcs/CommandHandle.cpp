@@ -40,9 +40,7 @@ void	Server::executeCommand(Command const &command){
 			break;
 	}
 	if (!command.getUser().isAuthorized()) {
-		return sendError(command, ERR_NOTREGISTERED);//TODO errorhandle "not
-		// registered (password not
-		// entered)"
+		return sendError(command, ERR_NOTREGISTERED);
 	}
 	else {
 		//not allowed for unauthorized users
@@ -70,6 +68,9 @@ void	Server::executeCommand(Command const &command){
 			case LIST:
 				logStream << "LIST method is not implemented" << std::endl;
 				logger.logMessage(logStream, DEV);
+				break;
+			case PART:
+				handlePart(command);
 				break;
 			case WHO:
 				handleWho(command);
@@ -186,7 +187,7 @@ void Server::killUser(User &user, std::string reason) {
 			fd_list[user.getFd() - 3].fd = -1;
 			user.~User();
 			logStream << "User " << user.getNick() << " was removed from the "
-				"server";
+				"server"; //TODO remove
 			logger.logMessage(logStream, INFO);
 			break;
 		}
@@ -201,8 +202,9 @@ void Server::checkIfChannelEmpty(Channel *channel) {
 }
 
 void Server::removeUserFromChannel(User &user, Channel &channel ,const std::string &reason) {
-	sendMessageToChannel(channel, ":" + user.getUserInfoString() + " QUIT :" + reason + "\r\n");
+	sendMessageToChannel(channel, ":" + reason + "\r\n");
 	(channel).removeUser(&user);
+	user.removeChannel(&channel);
 	checkIfChannelEmpty(&channel);
 }
 
@@ -210,6 +212,8 @@ void Server::removeUserFromAllChannels(User &user, const std::string &reason) {
 	std::vector<Channel *> &channels = user.getChannels();
 	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
 		removeUserFromChannel(user, *(*it), reason);
+		if (channels.empty())
+			break;
 	}
 }
 
@@ -250,10 +254,12 @@ void Server::sendMessageToChannel(Command const &command) {
 	std::string string = command.getArgument(1);
 	std::vector<User *> users = channel->getUsers();
 	std::string	tosend;
-	//:doom!qr@188.242.23.62 PRIVMSG #wow :hey!
+
 	tosend += ':' + command.getUser().getUserInfoString() + ' ' + command.typeToString() + ' ' + channel->getName() + ' ' + string + "\r\n";
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
 		int fd = (*it)->getFd();
+		if (fd == command.getUser().getFd())
+			continue;
 		write(fd, tosend.c_str(), tosend.length());
 		logger.logUserMessage(tosend, *(*it), OUT);
 	}
