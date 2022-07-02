@@ -10,6 +10,7 @@ void Server::handlePrivateMessage(const Command &command) {
 	}
 
 	std::string			reciverNick = command.getArgument(0);
+
 	if (reciverNick.at(0) == '#') {
 		sendMessageToChannel(command);
 	} else {
