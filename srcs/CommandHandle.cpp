@@ -49,7 +49,7 @@ void	Server::executeCommand(Command const &command){
 				handlePrivateMessage(command);
 				break;
 			case NOTICE:
-//				handleNoticeMessage(command);
+				handleNoticeMessage(command);
 				break;
 			case JOIN:
 				handleJoin(command);
@@ -217,7 +217,8 @@ void Server::removeUserFromAllChannels(User &user, const std::string &reason) {
 	}
 }
 
-void Server::sendMessageToUser(const Command &command) {
+void Server::sendMessageToUser(const Command &command, std::string reason)
+{
 	if (command.getArguments().size() == 0) {
 		return sendError(command, ERR_NORECIPIENT);
 	}
@@ -233,7 +234,8 @@ void Server::sendMessageToUser(const Command &command) {
 	reciver = findUserByNick(reciverNick);
 	if (reciver) {
 		std::stringstream qtoSend;
-		qtoSend << ':' + command.getUser().getUserInfoString() <<  " " << "PRIVMSG" << " " << reciverNick << " :" << message << "\r\n";
+		qtoSend << ':' + command.getUser().getUserInfoString() <<  " " <<
+		reason << " " << reciverNick << " :" << message << "\r\n";
 		std::string str = qtoSend.str();
 		write(reciver->getFd(), str.c_str(), str.size());
 		logger.logUserMessage(str, *reciver, OUT);

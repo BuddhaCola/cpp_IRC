@@ -10,16 +10,18 @@ Server::Server() : _port(-1), _password(std::string()) {
 
 int Server::createListenSocket(int port)
 {
-	int sock = socket(AF_INET,SOCK_STREAM,0);//The second parameter here represents TCP
+	int sock = socket(AF_INET,SOCK_STREAM,0);
 	if( sock < 0 )
 		throw("socket fail...\n");
 
 	int opt = 1;
+	if (fcntl(sock, F_SETFL, O_NONBLOCK))
+		throw "Could not set non-blocking socket...\n";
 	setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
 	struct sockaddr_in local;
 	local.sin_family = AF_INET;
-	local.sin_addr.s_addr = htonl(INADDR_ANY);// Address of any type
+	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	local.sin_port = htons(port);
 
 	if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )

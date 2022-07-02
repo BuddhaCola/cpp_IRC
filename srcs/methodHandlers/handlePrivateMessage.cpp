@@ -14,6 +14,6 @@ void Server::handlePrivateMessage(const Command &command) {
 	if (reciverNick.at(0) == '#') {
 		sendMessageToChannel(command);
 	} else {
-		sendMessageToUser(command);
+		sendMessageToUser(command, "PRIVMSG");
 	}
 }

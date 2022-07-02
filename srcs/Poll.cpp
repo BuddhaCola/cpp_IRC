@@ -5,38 +5,31 @@ void Server::pollDefault(int listen_sock)
 	std::stringstream logStream;
 
 	int i = 0;
-	for (; i < MAX_USERS; i++)
-	{
-		if (fd_list[i].fd == -1)
-		{
+	for (; i < MAX_USERS; i++) {
+		if (fd_list[i].fd == -1) {
 			continue;
 		}
 		if (fd_list[i].fd == listen_sock &&
-			(fd_list[i].revents & POLLIN))
-		{
+			(fd_list[i].revents & POLLIN)) {
 			struct sockaddr_in client;
 			socklen_t len = sizeof(client);
 			int new_sock = accept(listen_sock, (struct sockaddr *) &client,
 								  &len);
-			if (new_sock < 0)
-			{
+			if (new_sock < 0) {
 				logStream << "accept fail..." << std::endl;
 				logger.logMessage(logStream, ERROR);
 				continue;
 			}
 
 			int i = 0;
-			for (; i < MAX_USERS; i++)
-			{
+			for (; i < MAX_USERS; i++) {
 				if (fd_list[i].fd == -1)
 					break;
 			}
-			if (i < MAX_USERS)
-			{
+			if (i < MAX_USERS) {
 				fd_list[i].fd = new_sock;
 				fd_list[i].events = POLLIN;
-			} else
-			{
+			} else {
 				close(new_sock);
 			}
 			User *new_user = new User(fd_list[i].fd);
@@ -53,22 +46,18 @@ void Server::pollDefault(int listen_sock)
 			_users.push_back(new_user);
 			continue;
 		}
-		if (fd_list[i].revents & POLLIN)
-		{
+		if (fd_list[i].revents & POLLIN) {
 			char buf[1024];
 			ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
-			if (s < 0)
-			{
+			if (s < 0) {
 				logStream << "read fail..." << std::endl;
 				logger.logMessage(logStream, ERROR);
-			} else if (s == 0)
-			{
+			} else if (s == 0) {
 				logStream << "client quit..." << std::endl;
 				logger.logMessage(logStream, INFO);
 				close(fd_list[i].fd);
 				fd_list[i].fd = -1;
-			} else
-			{
+			} else {
 				buf[s] = 0;
 				User *user = checkFdUser(i);
 				handleRequest(buf, *(user));
