@@ -11,7 +11,7 @@
 
 #define MODE std::fstream::in | std::fstream::out | std::fstream::app
 
-enum LogType { //TODO move to Logger class
+enum LogType {
 	IN,
 	OUT,
 	INFO,

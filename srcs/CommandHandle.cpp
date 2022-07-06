@@ -19,14 +19,6 @@ void	Server::executeCommand(Command const &command){
 			handleSetNick(command);
 			registerUserAndSendMOTD(user);
 			return;
-		default:
-			break;
-	}
-	if (user.getNick().empty() || user.getUsername().empty()) {
-		sendError(command, ERR_NOTREGISTERED);
-		return;
-	}
-	switch (command.getType()) {
 		case PING:
 			handlePing(command);
 			return;
@@ -38,6 +30,10 @@ void	Server::executeCommand(Command const &command){
 			return;
 		default:
 			break;
+	}
+	if (user.getNick().empty() || user.getUsername().empty()) {
+		sendError(command, ERR_NOTREGISTERED);
+		return;
 	}
 	if (!command.getUser().isAuthorized()) {
 		return sendError(command, ERR_NOTREGISTERED);
@@ -231,12 +227,17 @@ void Server::sendMessageToUser(const Command &command, std::string reason)
 	std::string			message = command.getArgument(1);
 	User				*reciver = 0;
 
+
+	if (toLowercase(reciverNick) == toLowercase(_botName)) {
+		handleBotMessage(command);
+		return;
+	}
 	reciver = findUserByNick(reciverNick);
 	if (reciver) {
-		std::stringstream qtoSend;
-		qtoSend << ':' + command.getUser().getUserInfoString() <<  " " <<
+		std::stringstream toSend;
+		toSend << ':' + command.getUser().getUserInfoString() << " " <<
 		reason << " " << reciverNick << " :" << message << "\r\n";
-		std::string str = qtoSend.str();
+		std::string str = toSend.str();
 		write(reciver->getFd(), str.c_str(), str.size());
 		logger.logUserMessage(str, *reciver, OUT);
 	}
@@ -289,12 +290,3 @@ User *Server::findUserByNick(std::string &reciverNick) { //TODO move it
 	}
 	return reciver;
 }
-
-
-
-
-
-
-
-
-

@@ -2,7 +2,7 @@
 #include "../includes/Command.hpp"
 #include "../includes/User.hpp"
 
-Server::Server(int port, std::string password) : _port(port), _password(password){
+Server::Server(int port, std::string password) : _port(port), _password(password), _botName(BOTNAME){
 }
 
 Server::Server() : _port(-1), _password(std::string()) {
@@ -82,12 +82,6 @@ User * Server::checkFdUser(int i)
 		throw (FtException());
 	}
 	return user;
-}
-
-void Server::readFromBuffer(int i) //TODO the fuck?
-{
-	std::stringstream logStream;
-
 }
 
 void Server::mainLoop(int listen_sock)
