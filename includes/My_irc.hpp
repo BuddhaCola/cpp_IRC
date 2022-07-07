@@ -6,6 +6,7 @@
 
 #define MORE_INFO
 #define LOGGER_PATH "log"
+#define BOTNAME "Bot"
 
 class FtException: public std::exception
 {

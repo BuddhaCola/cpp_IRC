@@ -5,7 +5,6 @@
 #include "../../includes/Server.hpp"
 
 void Server::handleNoticeMessage(const Command &command) {
-
 	if(command.getArguments().size() == 0) {
 		return sendError(command, ERR_NORECIPIENT);
 	}

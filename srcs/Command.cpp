@@ -15,7 +15,7 @@ Command::Command(std::string &string, User &user) : _user(user) {
 	std::stringstream		stream(string);
 
 	_textPart = 0;
-	stream >> current; //TODO test
+	stream >> current;
 	if (current.empty()) { //empty command
 		return;
 	}
