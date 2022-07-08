@@ -82,5 +82,9 @@ private:
 	void						handleKick(const Command &);
 	void 						handleWho(const Command &command);
 	void						handlePart(const Command &command);
+
+	void						botGreeting(User &user);
+	void						botListUsers(User &user);
+	void						botListChannels(User &user);
 };
 #endif //MY_IRC_SERVER_HPP

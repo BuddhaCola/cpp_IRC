@@ -136,6 +136,7 @@ void Server::registerUserAndSendMOTD(User &user) {
 			//prevent repeating MOTD sending
 			user.setRegistered(true);
 			createAndSendMessageOfTHeDay(user);
+			botGreeting(user);
 		}
 	}
 }
