@@ -144,11 +144,14 @@ void Server::createAndSendMessageOfTHeDay(const User &user)
 {
 	//TODO move it to the propper method
 	std::stringstream stream;
-	stream << ":My_IRC 375 " + user.getNick() + " :- irc.ircnet.su Message of the Day -\r\n"; //TODO use
+	stream << " 001 * :- Welcome to My-IRC"  + user.getUserInfoString() +
+	"\r\n"; //TODO use
+	stream << ":My_IRC 375 " + user.getNick() + " :- My-IRC Message of the Day "
+											 "-\r\n";
 	stream << ":My_IRC 372 " + user.getNick() + " wow\r\n";
 	stream << ":My_IRC 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
-	write(user.getFd(), mes_376.c_str(), mes_376.length());
+	send(user.getFd(), mes_376.c_str(), mes_376.length() + 1, 0);
 }
 
 bool Server::checkIfNickRegistered(const std::string &nick) {

@@ -60,9 +60,8 @@ void Server::handleWho(const Command &command)
 	User &user = 						command.getUser();
 	std::vector<Channel *> &channels = 	user.getChannels();
 
-	if (command.getArgument(0).empty()) {
-		sendError(command, ERR_NEEDMOREPARAMS);
-		return;
+	if (command.getArguments().size() == 0) {
+		return sendError(command, ERR_NEEDMOREPARAMS);
 	}
 	if (command.getArgument(0).at(0) == '#') {
 		printChannel(command);
