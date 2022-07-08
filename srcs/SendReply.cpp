@@ -103,5 +103,5 @@ void		Server::sendReply(Command const &command, int replyCode)
 			break;
 	}
 	logger.logUserMessage(msg, user, OUT);
-	write(user.getFd(), msg.c_str(), msg.size());
+	send(user.getFd(), msg.c_str(), msg.size(), 0);
 }
