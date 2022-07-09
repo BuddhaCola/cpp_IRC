@@ -18,7 +18,7 @@ void Server::printChannel(const Command &command)
 			msg = ":My_IRC " + std::to_string(RPL_WHOREPLY) + " " + user
 			.getNick();
 			msg += " " + channelName + " " + (*it)->getUsername() + " "
-			+ (*it)->getIp() + " My_IRC " + (*it)->getNick(); + " H";
+			+ (*it)->getIp() + " My_IRC " + (*it)->getNick() + " H";
 			if (channel->isOperator((*it)) || (*it)->isOper()) {
 				msg += '@';
 			}

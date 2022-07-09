@@ -53,8 +53,8 @@ void Server::pollDefault(int listen_sock)
 				logStream << "read fail..." << std::endl;
 				logger.logMessage(logStream, ERROR);
 			} else if (s == 0) {
-				logStream << "client quit..." << std::endl;
-				logger.logMessage(logStream, INFO);
+				User *user = findUserByFd(fd_list[i].fd);
+				killUser(*user, " QUIT :Remote host closed the connection");
 				close(fd_list[i].fd);
 				fd_list[i].fd = -1;
 			} else {
