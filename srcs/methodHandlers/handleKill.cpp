@@ -18,11 +18,10 @@ void Server::handleKill(const Command &command) {
 		}
 		return sendError(command, ERR_NOSUCHNICK);
 	}
-	std::string reason = user.getUserInfoString() + " KILL " + command.getArgument(0);
+	std::string reason = toKill->getUserInfoString() + " QUIT ";
+		reason += " :killed by " + user.getNick();
 	if (command.getArguments().size() > 1) {
-		reason += " :" + command.getArgument(1);
-	} else {
-		reason += " :" + user.getNick();
+		reason += " with reason: " + command.getArgument(1);
 	}
 	killUser(*toKill, reason);
 }
