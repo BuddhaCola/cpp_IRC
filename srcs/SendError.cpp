@@ -131,10 +131,10 @@ void Server::sendError(Command const &command , int errorCode )
 			msg += " " + commandName + " :Cannot join channel (+k)\n";
 			break;
 		case ERR_NOPRIVILEGES:
-			msg += " :Permission Denied- You're not an IRC operator\n";
+			msg += " :Permission Denied- You do not have the correct IRC Operator privileges\n";
 			break;
 		case ERR_CHANOPRIVSNEEDED:
-			msg += " " + command.getArgument(0) + " :You're not channel operator\n";
+			msg += " " + commandName + " :You're not channel operator\n";
 			break;
 		case ERR_CANTKILLSERVER:
 			msg += " :You cant kill a server!\n";

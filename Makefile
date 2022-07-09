@@ -20,7 +20,9 @@ SRC		=	srcs/main.cpp\
 			srcs/methodHandlers/handlePong.cpp\
 			srcs/methodHandlers/handleJoin.cpp\
 			srcs/methodHandlers/handleQuit.cpp\
+			srcs/methodHandlers/handleOper.cpp\
 			srcs/methodHandlers/handleKick.cpp\
+			srcs/methodHandlers/handleKill.cpp\
 			srcs/methodHandlers/handlePart.cpp\
 			srcs/methodHandlers/handleWho.cpp\
 			srcs/methodHandlers/handleNoticeMessage.cpp\

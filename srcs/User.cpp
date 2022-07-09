@@ -4,10 +4,12 @@
 #include <unistd.h>
 #include <iostream>
 
-User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false) {
+User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false), _oper(
+		false) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false) {
+User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false), _oper(
+		false) {
 }
 
 User::~User() { //user isn't deleted on quit
@@ -131,4 +133,12 @@ void User::removeChannel(Channel *channel) {
 
 std::vector<Channel *> & User::getChannels() {
 	return _channels;
+}
+
+bool User::isOper() const {
+	return _oper;
+}
+
+void User::setOper(bool oper) {
+	_oper = oper;
 }

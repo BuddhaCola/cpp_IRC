@@ -51,12 +51,10 @@ void	Server::executeCommand(Command const &command){
 				handleJoin(command);
 				break;
 			case OPER:
-				logStream << "OPER method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleOper(command);
 				break;
 			case KILL:
-				logStream << "KILL method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleKill(command);
 				break;
 			case KICK:
 				handleKick(command);
@@ -185,9 +183,7 @@ void Server::killUser(User &user, std::string reason) {
 			removeUserFromAllChannels(user, reason);
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
-			user.~User();
-			logStream << "User " << user.getNick() << " was removed from the "
-				"server"; //TODO remove
+			delete &user;
 			logger.logMessage(logStream, INFO);
 			break;
 		}
@@ -198,6 +194,7 @@ void Server::checkIfChannelEmpty(Channel *channel) {
 	if (channel->getUsers().empty()) {
 		std::vector<Channel *>::iterator it = std::find(_channels.begin(), _channels.end(), channel);
 		_channels.erase(it);
+		delete (*it);
 	}
 }
 
@@ -282,7 +279,7 @@ void Server::sendMessageToChannel(const Channel &channel, std::string string) {
 	}
 }
 
-User *Server::findUserByNick(std::string &reciverNick) { //TODO move it
+User *Server::findUserByNick(const std::string &reciverNick) { //TODO move it
 	User *reciver = 0;
 	std::string	reciverNickLowercased = toLowercase(reciverNick);
 

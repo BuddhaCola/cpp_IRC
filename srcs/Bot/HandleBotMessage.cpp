@@ -20,7 +20,9 @@ void Server::botListUsers(User &user){
 			message += ", ";
 	}
 	stream << ':' + _botName << " " <<
-		   "PRIVMSG" << " " << user.getNick() << " :" << "There's " << usersCount << " user" << (usersCount == 1 ? ' ' : 's') << " on the server right now. " << registeredUsersCount << " of them " << (registeredUsersCount == 1 ? "is" : "are") << " registered";
+		   "PRIVMSG" << " " << user.getNick() << " :" << "There's " << usersCount - 1 << " user" << (usersCount - 1 == 1 ? ' ' : 's') << " on the server right now. ";
+	if (usersCount > 1)
+		stream << registeredUsersCount << " of them " << (registeredUsersCount == 1 ? "is" : "are") << " registered";
 	if (registeredUsersCount)
 		stream << ":\n" << message;
 	stream  << "\r\n";

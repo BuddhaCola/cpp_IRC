@@ -19,6 +19,8 @@ public:
 	void					setAuthorized(bool authorized);
 	bool					isRegistered() const;
 	void					setRegistered(bool registered);
+	bool					isOper() const;
+	void					setOper(bool oper);
 	User &					operator= (const User &other);
 	std::ostream&			operator<<(std::ostream &);
 	friend std::ostream&	operator<< (std::ostream&, const User&);
@@ -29,10 +31,11 @@ private:
 	int						_fd;
 	bool					_authorized;
 	bool					_registered;
-	bool					_oper; //* = global
+	bool					_oper;
+
+private:
 	std::time_t 			_timestamp;
 	std::string				_username;
-	std::string				_hostname;
 	std::string				_realname;
 	std::string				_IP;
 	int 					_port;

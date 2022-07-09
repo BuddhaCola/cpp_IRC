@@ -40,7 +40,7 @@ void Server::handleJoin(const Command &command) {
 	" :"; //TODO bullshit
 
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
-		if (channel->isOperator((*it))) {
+		if (channel->isOperator((*it)) || (*it)->isOper()) {
 			names << '@';
 		}
 		names << (*it)->getNick();
