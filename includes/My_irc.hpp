@@ -6,7 +6,9 @@
 
 #define MORE_INFO
 #define LOGGER_PATH "log"
-#define BOTNAME "Bot"
+#define SERVERNAME "AwesomeIRC"
+#define BOTNAME "Alfred"
+#define OPERPASS "godsexlove"
 
 class FtException: public std::exception
 {

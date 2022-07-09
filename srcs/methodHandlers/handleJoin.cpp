@@ -36,11 +36,10 @@ void Server::handleJoin(const Command &command) {
 	std::stringstream names;
 	std::vector<User *> users = channel->getUsers();
 	std::vector<User *> operators = channel->getOperators();
-	names << ":My_IRC 353 " << user.getNick() << " = " << channel->getName() <<
-	" :"; //TODO bullshit
+	names << ":" + _serverName +" 353 " << user.getNick() << " = " << channel->getName() << " :";
 
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
-		if (channel->isOperator((*it))) {
+		if (channel->isOperator((*it)) || (*it)->isOper()) {
 			names << '@';
 		}
 		names << (*it)->getNick();
@@ -52,14 +51,8 @@ void Server::handleJoin(const Command &command) {
 	write(user.getFd(), namesString.c_str(), namesString.length());
 	logger.logUserMessage(namesString, user, OUT);
 
-
-//	listChannelNames(channel);
-//send to everyone :ho!qw@188.242.23.62 JOIN :#j
-
-
-	//TODO VV bullshit VV
 	std::stringstream endOfNamesList;
-	endOfNamesList << ":irc.ircnet.su 366 " << user.getNick() << " " << channel->getName() << " :End of /NAMES list.\r\n";
+	endOfNamesList << ":" + _serverName +" 366 " << user.getNick() << " " << channel->getName() << " :End of /NAMES list.\r\n";
 	std::string endOfNamesListString = endOfNamesList.str();
 	write(user.getFd(), endOfNamesListString.c_str(), endOfNamesListString.length());
 	logger.logUserMessage(endOfNamesListString, user, OUT);

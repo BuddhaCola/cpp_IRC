@@ -18,7 +18,7 @@ void		Server::sendReply(Command const &command, int replyCode)
 	switch (replyCode)
 	{
 		case RPL_NOWAWAY:
-			msg += ":You have been marked as being away\n";
+			msg += " :You have been marked as being away\n";
 			break;
 		case RPL_WHOISOPERATOR:
 			msg +=  + " :is an IRC operator\n";
@@ -48,37 +48,37 @@ void		Server::sendReply(Command const &command, int replyCode)
 			msg +=  + " :End of channel ban list\n";
 			break;
 		case RPL_ENDOFINFO:
-			msg += ":End of /INFO list\n";
+			msg += " :End of /INFO list\n";
 			break;
 		case RPL_MOTDSTART:
-			msg += ":- Message of the day - \n";
+			msg += " :- Message of the day - \n";
 			break;
 		case RPL_ENDOFMOTD:
-			msg += ":End of /MOTD command\n";
+			msg += " :End of /MOTD command\n";
 			break;
 		case RPL_YOUREOPER:
-			msg += ":You are now an IRC operator\n";
+			msg += " " + commandName + " :You are now an IRC operator\n";
 			break;
 		case RPL_REHASHING:
 			msg +=  + " :Rehashing\n";
 			break;
 		case RPL_USERSSTART:
-			msg += ":UserID   Terminal  Host\n";
+			msg += " :UserID   Terminal  Host\n";
 			break;
 		case RPL_USERS:
-			msg += ":%-8s %-9s %-8s\n"; // Хз, что это UPD: Понял, строка длиной 8 символов
+			msg += " :%-8s %-9s %-8s\n"; // Хз, что это UPD: Понял, строка длиной 8 символов
 			break;
 		case RPL_ENDOFUSERS:
-			msg += ":End of users\n";
+			msg += " :End of users\n";
 			break;
 		case RPL_NOUSERS:
-			msg += ":Nobody logged in\n";
+			msg += " :Nobody logged in\n";
 			break;
 		case RPL_ENDOFSTATS:
 			msg +=  + " :End of /STATS report\n";
 			break;
 		case RPL_STATSUPTIME:
-			msg += ":Server Up %d days %d:%02d:%02d\n"; // Поменять
+			msg += " :Server Up %d days %d:%02d:%02d\n"; // Поменять
 			break;
 		case RPL_UMODEIS:
 			msg +=  + "\n";
@@ -93,7 +93,7 @@ void		Server::sendReply(Command const &command, int replyCode)
 			msg +=  + " :channels formed\n";
 			break;
 		case RPL_LUSERME:
-			msg += ":I have clients and servers\n";
+			msg += " :I have clients and servers\n";
 			break;
 		case RPL_ADMINME:
 			msg +=  + " :Administrative info\n";
