@@ -143,12 +143,11 @@ void Server::createAndSendMessageOfTHeDay(const User &user)
 {
 	//TODO move it to the propper method
 	std::stringstream stream;
-	stream << " 001 * :- Welcome to My-IRC"  + user.getUserInfoString() +
-	"\r\n"; //TODO use
-	stream << ":My_IRC 375 " + user.getNick() + " :- My-IRC Message of the Day "
-											 "-\r\n";
-	stream << ":My_IRC 372 " + user.getNick() + " wow\r\n";
-	stream << ":My_IRC 376 " + user.getNick() + " :End of /MOTD command.\r\n";
+	stream << " 001 * :- Welcome to " + _serverName + " server, " + user.getUserInfoString() +
+	"\r\n";
+	stream << ":" + _serverName + " 375 " + user.getNick() + " :- " + _serverName +" Message of the Day -\r\n";
+	stream << ":" + _serverName + " 372 " + user.getNick() + " wow\r\n";
+	stream << ":" + _serverName + " 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
 	send(user.getFd(), mes_376.c_str(), mes_376.length() + 1, 0);
 }

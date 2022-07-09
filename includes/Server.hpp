@@ -42,6 +42,7 @@ private:
 	struct pollfd 				fd_list[1024];
 	int							_port;
 	std::string					_password;
+	std::string					_serverName;
 	std::vector<User *>			_users;
 	std::vector<Channel *>		_channels; //https://datatracker.ietf.org/doc/html/rfc1459#section-1.3
 	Logger						logger;

@@ -2,7 +2,7 @@
 #include "../includes/Command.hpp"
 #include "../includes/User.hpp"
 
-Server::Server(int port, std::string password) : _port(port), _password(password), _botName(BOTNAME){
+Server::Server(int port, std::string password) : _port(port), _password(password), _serverName(SERVERNAME), _botName(BOTNAME) {
 }
 
 Server::Server() : _port(-1), _password(std::string()) {
