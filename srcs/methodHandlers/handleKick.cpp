@@ -8,8 +8,11 @@ std::vector<User *> Server::collectToKickList(const Command &command, Channel *c
 
 	while (true) {
 		current = inputArgumentCopy.find(',');
-		if (current == std::string::npos)
+		if (current == std::string::npos) {
+			if (usersToKick.empty())
+				usersToKick.push_back(inputArgumentCopy);
 			break;
+		}
 		usersToKick.push_back(inputArgumentCopy.substr(0, current));
 		inputArgumentCopy = inputArgumentCopy.substr(current + 1);
 	}
@@ -19,7 +22,7 @@ std::vector<User *> Server::collectToKickList(const Command &command, Channel *c
 		currentUserNick = currentUserNick;
 		currentUser  = channel->findUserByNick(currentUserNick);
 		if (!currentUser) {
-			sendError(command, ERR_NOSUCHNICK); //TODO fuuuuuuck
+			sendError(command, ERR_NOSUCHNICK);
 			continue;
 		}
 		toKick.push_back(currentUser);
@@ -33,8 +36,7 @@ std::vector<User *> Server::collectToKickList(const Command &command, Channel *c
 //ERR_NOTONCHANNEL
 void Server::handleKick(const Command &command) {
 	if (command.getArguments().size() < 2) {
-		sendError(command, ERR_NEEDMOREPARAMS);
-		return;
+		return sendError(command, ERR_NEEDMOREPARAMS);
 	}
 	Channel					*channel;
 	User					&user = command.getUser();
@@ -42,20 +44,12 @@ void Server::handleKick(const Command &command) {
 	std::string	reason;
 	channel = findChannel(command.getArgument(0));
 	if (!channel) {
-		sendError(command, ERR_NOSUCHCHANNEL);
-		return;
+		return sendError(command, ERR_NOSUCHCHANNEL);
 	}
-	if (!channel->isOperator(&user)) {
-		sendError(command, ERR_CHANOPRIVSNEEDED);
-		return;
+	if (!channel->isOperator(&user) && !user.isOper()) {
+		return sendError(command, ERR_CHANOPRIVSNEEDED);
 	}
 	toKick = collectToKickList(command, channel);
-	if (command.getArguments().size() > 2) {
-		reason = command.getArgument(2);
-	}
-	else {
-		reason = "kicked by " + user.getNick();
-	}
 	for (int i = 0; i < toKick.size(); ++i) {
 		std::string	msg = user.getUserInfoString() + " KICK " + channel->getName() + " " + toKick.at(i)->getNick() + " :" + user.getNick();
 		removeUserFromChannel(*toKick.at(i), *channel, msg);

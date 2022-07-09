@@ -51,12 +51,10 @@ void	Server::executeCommand(Command const &command){
 				handleJoin(command);
 				break;
 			case OPER:
-				logStream << "OPER method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleOper(command);
 				break;
 			case KILL:
-				logStream << "KILL method is not implemented" << std::endl;
-				logger.logMessage(logStream, DEV);
+				handleKill(command);
 				break;
 			case KICK:
 				handleKick(command);
@@ -136,6 +134,7 @@ void Server::registerUserAndSendMOTD(User &user) {
 			//prevent repeating MOTD sending
 			user.setRegistered(true);
 			createAndSendMessageOfTHeDay(user);
+			botGreeting(user);
 		}
 	}
 }
@@ -144,12 +143,11 @@ void Server::createAndSendMessageOfTHeDay(const User &user)
 {
 	//TODO move it to the propper method
 	std::stringstream stream;
-	stream << " 001 * :- Welcome to My-IRC"  + user.getUserInfoString() +
-	"\r\n"; //TODO use
-	stream << ":My_IRC 375 " + user.getNick() + " :- My-IRC Message of the Day "
-											 "-\r\n";
-	stream << ":My_IRC 372 " + user.getNick() + " wow\r\n";
-	stream << ":My_IRC 376 " + user.getNick() + " :End of /MOTD command.\r\n";
+	stream << " 001 * :- Welcome to " + _serverName + " server, " + user.getUserInfoString() +
+	"\r\n";
+	stream << ":" + _serverName + " 375 " + user.getNick() + " :- " + _serverName +" Message of the Day -\r\n";
+	stream << ":" + _serverName + " 372 " + user.getNick() + " wow\r\n";
+	stream << ":" + _serverName + " 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
 	send(user.getFd(), mes_376.c_str(), mes_376.length() + 1, 0);
 }
@@ -184,9 +182,7 @@ void Server::killUser(User &user, std::string reason) {
 			removeUserFromAllChannels(user, reason);
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
-			user.~User();
-			logStream << "User " << user.getNick() << " was removed from the "
-				"server"; //TODO remove
+			delete &user;
 			logger.logMessage(logStream, INFO);
 			break;
 		}
@@ -197,6 +193,7 @@ void Server::checkIfChannelEmpty(Channel *channel) {
 	if (channel->getUsers().empty()) {
 		std::vector<Channel *>::iterator it = std::find(_channels.begin(), _channels.end(), channel);
 		_channels.erase(it);
+		delete (*it);
 	}
 }
 
@@ -281,7 +278,7 @@ void Server::sendMessageToChannel(const Channel &channel, std::string string) {
 	}
 }
 
-User *Server::findUserByNick(std::string &reciverNick) { //TODO move it
+User *Server::findUserByNick(const std::string &reciverNick) { //TODO move it
 	User *reciver = 0;
 	std::string	reciverNickLowercased = toLowercase(reciverNick);
 

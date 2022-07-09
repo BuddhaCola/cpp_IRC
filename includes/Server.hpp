@@ -42,6 +42,7 @@ private:
 	struct pollfd 				fd_list[1024];
 	int							_port;
 	std::string					_password;
+	std::string					_serverName;
 	std::vector<User *>			_users;
 	std::vector<Channel *>		_channels; //https://datatracker.ietf.org/doc/html/rfc1459#section-1.3
 	Logger						logger;
@@ -61,26 +62,32 @@ private:
 	void						sendMessageToUser(const Command &, std::string reason);
 	void 						sendError(Command const &, int);
 	void 						sendReply(Command const &, int);
-	void						killUser(User &user, std::string reason);
-	void						checkIfChannelEmpty(Channel *channel);
-	void						removeUserFromChannel(User &user, Channel &channel, const std::string &reason);
-	void						printUser(const Command &command);
-	void						printChannel(const Command &command);
-	User						*findUserByNick(std::string &);
-	std::vector<User *>			collectToKickList(const Command &command, Channel *channel);
-	void						handleBotMessage(const Command &command);
+	void						killUser(User &, std::string );
+	void						checkIfChannelEmpty(Channel *);
+	void						removeUserFromChannel(User &, Channel &, const std::string &);
+	void						printUser(const Command &);
+	void						printChannel(const Command &);
+	User						*findUserByNick(const std::string &);
+	std::vector<User *>			collectToKickList(const Command &, Channel *);
+	void						handleBotMessage(const Command &);
 
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
 	void						handleSetNick(Command const &);
 	void						handlePrivateMessage(const Command &);
 	void						handlePing(const Command  &);
+	void						handleOper(const Command  &);
 	void 						handlePong(const Command &);
 	void						handleQuit(const Command &);
 	void 						handleNoticeMessage(const Command &);
 	void						handleJoin(const Command &command);
 	void						handleKick(const Command &);
+	void						handleKill(const Command &);
 	void 						handleWho(const Command &command);
 	void						handlePart(const Command &command);
+
+	void						botGreeting(User &user);
+	void						botListUsers(User &user);
+	void						botListChannels(User &user);
 };
 #endif //MY_IRC_SERVER_HPP
