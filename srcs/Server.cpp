@@ -24,11 +24,15 @@ int Server::createListenSocket(int port)
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	local.sin_port = htons(port);
 
-	if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 )
-		throw("bind fail...\n");
+	if( bind(sock,(struct sockaddr *)&local,sizeof(local)) < 0 ) {
+		logger.logMessage("bind fail on port " + std::to_string(port), ERROR);
+		exit(-1);
+	}
 
-	if( listen(sock,5) < 0 )
-		throw("listen fail...\n");
+	if( listen(sock,5) < 0 ) {
+		logger.logMessage("listen fail on port " + std::to_string(port), ERROR);
+		exit(-1);
+	}
 	return sock;
 }
 
