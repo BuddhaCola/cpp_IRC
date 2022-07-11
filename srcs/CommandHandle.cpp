@@ -116,7 +116,10 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 			commands.push_back(Command(current, user));
 		}
 		catch (FtException &e) {
-				//TODO sendError(current, 421);
+
+				std::string strError = ":My-IRC 421 " + user.getNick() + " "
+					+ current + " :Unknown command\r\n";
+				write(user.getFd(), strError.c_str(), strError.length());
 				logStream << "unrecognized request: \"" << current << '\"' << std::endl;
 				logger.logMessage(logStream, ERROR);
 		}
