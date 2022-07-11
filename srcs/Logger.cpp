@@ -15,6 +15,19 @@ Logger::Logger() {
 	file.close();
 }
 
+void Logger::logMessage(std::string message, LogType type) {
+	std::stringstream logStream;
+	std::stringstream lol(message);
+	std::string			line;
+
+	while (std::getline(lol, line)){
+		if (line.size() > 2 && line.at(line.size() - 1) == '\r')
+			line = line.substr(0, line.size() - 1);
+		logStream << line << std::endl;
+	}
+	logMessage(logStream, type);
+}
+
 void Logger::logMessage(std::stringstream &message, LogType type) {
 	std::stringstream out;
 	std::string	line;
@@ -52,7 +65,7 @@ void Logger::logUserMessage(std::string message, User &user, LogType type) {
 	std::stringstream logStream;
 	std::stringstream lol(message);
 	std::string			line;
-	size_t				last;
+
 	while (std::getline(lol, line)){
 		if (line.size() > 2 && line.at(line.size() - 1) == '\r')
 			line = line.substr(0, line.size() - 1);
