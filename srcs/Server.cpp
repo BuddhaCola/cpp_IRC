@@ -1,6 +1,4 @@
 #include "../includes/Server.hpp"
-#include "../includes/Command.hpp"
-#include "../includes/User.hpp"
 
 Server::Server(int port, std::string password) : _port(port), _password(password), _serverName(SERVERNAME), _botName(BOTNAME) {
 }
@@ -12,11 +10,12 @@ int Server::createListenSocket(int port)
 {
 	int sock = socket(AF_INET,SOCK_STREAM,0);
 	if( sock < 0 )
-		throw("socket fail...\n");
-
+		logger.logMessage("Socket fail", ERROR);
 	int opt = 1;
-	if (fcntl(sock, F_SETFL, O_NONBLOCK))
-		throw "Could not set non-blocking socket...\n";
+	if (fcntl(sock, F_SETFL, O_NONBLOCK)) {
+		logger.logMessage("Could not set non-blocking socket", ERROR);
+		exit(-1);
+	}
 	setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
 	struct sockaddr_in local;
@@ -68,7 +67,6 @@ void Server::createFdList(int listen_socket)
 
 User * Server::checkFdUser(int i)
 {
-	std::stringstream logStream;
 	User *user = 0;
 	for (std::vector<User *>::iterator it = this->_users.begin();
 		 it != this->_users.end(); ++it)
@@ -81,8 +79,7 @@ User * Server::checkFdUser(int i)
 	}
 	if (!user)
 	{
-		logStream << "_user fd undefined" << std::endl;
-		logger.logMessage(logStream, ERROR);
+		logger.logMessage("_user fd undefined", ERROR);
 		throw (FtException());
 	}
 	return user;
@@ -93,6 +90,7 @@ void Server::mainLoop(int listen_sock)
 	StartLogMessage();
 	createFdList(listen_sock);
 
+
 	while (1)
 	{
 		switch (poll(fd_list, MAX_USERS, POLL_TIMEOUT))
@@ -101,10 +99,10 @@ void Server::mainLoop(int listen_sock)
 				pingClient();
 				continue;
 			case -1:
-				std::cerr << "poll fail..." << std::endl;
+				logger.logMessage("poll returned -1, errno = " + std::string(strerror(errno)), ERROR);
 				continue;
 			default:
-				pollDefault(listen_sock);
+				processConnection(listen_sock);
 				break;
 			}
 		}

@@ -29,7 +29,7 @@ public:
 	Server(int, std::string);
 	void 						createFdList(int);
 	User * 						checkFdUser(int i);
-	void 						pollDefault(int listen_sock);
+	void 						processConnection(int listen_sock);
 	int 						createListenSocket(int);
 	void						mainLoop(int);
 	std::string					getPassword() const;
