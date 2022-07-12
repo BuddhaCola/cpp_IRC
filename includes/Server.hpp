@@ -70,7 +70,6 @@ private:
 	User 						*findUserByFd(int fd);
 	User						*findUserByNick(const std::string &);
 	std::vector<User *>			collectToKickList(const Command &, Channel *);
-	void						handleBotMessage(const Command &);
 
 	void						handleUser(Command const &);
 	void						handlePassword(Command const &);
@@ -87,9 +86,9 @@ private:
 	void 						handleWho(const Command &command);
 	void						handlePart(const Command &command);
 
+	void						handleBotMessage(const Command &);
 	void						botGreeting(User &user);
 	void						botListUsers(User &user);
 	void						botListChannels(User &user);
-
 };
 #endif //MY_IRC_SERVER_HPP

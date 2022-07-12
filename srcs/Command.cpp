@@ -85,11 +85,6 @@ const std::string &Command::getArgument(int i) const {
 	return _arguments.at(i);
 }
 
-const Response &Command::getResponse() const
-{
-	return _response;
-}
-
 void Command::setArguments(const std::vector<std::string> &arguments) {
 	_arguments = arguments;
 }

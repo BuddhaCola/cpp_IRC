@@ -28,7 +28,6 @@ SRC		=	srcs/main.cpp\
 			srcs/methodHandlers/handleNoticeMessage.cpp\
 			srcs/Bot/HandleBotMessage.cpp
 
-
 CXX		= c++
 
 CPPFLAGS	= -g -std=c++98 -Wall -Wextra -Werror

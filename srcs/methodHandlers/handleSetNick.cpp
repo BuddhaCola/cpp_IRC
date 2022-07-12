@@ -15,7 +15,7 @@ void Server::handleSetNick(const Command &command) {
 	}
 	if (nickToSet.size() < 9 && validateString(nickToSet)) {
 		user.setNick(nickToSet);
-		user.setNickLowercase(toLowercase(nickToSet)); //move it
+		user.setNickLowercase(toLowercase(nickToSet));
 	}
 	else {
 		sendError(command, ERR_ERRONEUSNICKNAME);
