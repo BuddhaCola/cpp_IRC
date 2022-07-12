@@ -22,10 +22,10 @@ enum LogType {
 class Logger {
 public:
 	Logger();
-	void logMessage(std::stringstream &message, LogType type);
-	void logMessage(std::string message, LogType type);
-	void logUserMessage(std::string message, User &user, LogType type);
-	Logger & operator= (const Logger &other);
+	void			logMessage(std::stringstream &message, LogType type);
+	void			logMessage(std::string message, LogType type);
+	void			logUserMessage(std::string message, User &user, LogType type);
+	Logger 			&operator=(const Logger &other);
 	Logger(Logger const &);
 	~Logger();
 private:

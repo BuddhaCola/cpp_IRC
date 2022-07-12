@@ -25,7 +25,7 @@ X(PART)
 
 //enum representation
 #define X(e) e
-enum CommandEnum { COMMANDS(X), UNDEFINED }; //rename UNDEFINED
+enum CommandEnum { COMMANDS(X), UNDEFINED };
 #undef X
 
 //string representation
@@ -50,23 +50,21 @@ public:
 	const std::string				&getArgument(int) const;
 	void							setArguments(const std::vector<std::string> &arguments);
 
+	Command &						operator=(const Command &);
+	std::ostream&					operator<<(std::ostream &) const;
+	friend std::ostream&			operator<<(std::ostream&, const Command&);
 	~Command();
-	Command &	operator=	(const Command &);
-	std::ostream& operator<<(std::ostream &) const;
-	friend std::ostream& operator<< (std::ostream&, const Command&);
 	Command(Command const &);
-private:
-	CommandEnum 				_type;
-	std::string					*_textPart;
-	std::vector<std::string>	_arguments;
-	User						&_user;
-	Response					_response;
-public:
-	const Response &getResponse() const;
 
 private:
+	CommandEnum 					_type;
+	std::string						*_textPart;
+	std::vector<std::string>		_arguments;
+	User							&_user;
+	Response						_response;
 
-	void 						parseTextPart(std::stringstream &);
+private:
+	void 							parseTextPart(std::stringstream &);
 };
 
 #endif //MY_IRC_COMMAND_HPP

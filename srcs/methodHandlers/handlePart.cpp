@@ -19,7 +19,5 @@ void Server::handlePart(const Command &command) {
 		sendError(command, ERR_NOSUCHCHANNEL);
 		return;
 	}
-	//:Quake!Joe@188.242.23.62 PART #woww
-	//:test!garbage@127.0.0.1 PART #11
 	removeUserFromChannel(user, *channel, user.getUserInfoString() + " PART " + channel->getName());
 }

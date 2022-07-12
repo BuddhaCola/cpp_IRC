@@ -64,7 +64,7 @@ void		Server::sendReply(Command const &command, int replyCode)
 			msg += " :UserID   Terminal  Host\n";
 			break;
 		case RPL_USERS:
-			msg += " :%-8s %-9s %-8s\n"; // Хз, что это UPD: Понял, строка длиной 8 символов
+			msg += " :%-8s %-9s %-8s\n";
 			break;
 		case RPL_ENDOFUSERS:
 			msg += " :End of users\n";
@@ -76,7 +76,7 @@ void		Server::sendReply(Command const &command, int replyCode)
 			msg +=  + " :End of /STATS report\n";
 			break;
 		case RPL_STATSUPTIME:
-			msg += " :Server Up %d days %d:%02d:%02d\n"; // Поменять
+			msg += " :Server Up %d days %d:%02d:%02d\n";
 			break;
 		case RPL_UMODEIS:
 			msg +=  + "\n";

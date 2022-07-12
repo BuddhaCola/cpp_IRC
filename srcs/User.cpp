@@ -14,7 +14,7 @@ User::User(int fd_user) : _nick(std::string()), _fd(fd_user),  _authorized
 		false), _timestamp(std::time(NULL)) {
 }
 
-User::~User() { //user isn't deleted on quit
+User::~User() {
 	close(_fd);
 }
 
@@ -44,16 +44,12 @@ void User::setAuthorized(bool authorized) {
 }
 std::ostream &User::operator<<(std::ostream &os) {
 	os << "fd: " << _fd;
-//	if (!_nick.empty())
-//		os << " nick " << _nick;
 	os << ' ' << this->getUserInfoString();
 	return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const User &user) {
 	os << "fd " << user.getFd();
-//	if (!user.getNick().empty())
-//		os << " nick " << user.getNick();
 	os << ' ' << user.getUserInfoString();
 	return os;
 }
@@ -102,7 +98,6 @@ std::string User::getUserInfoString() const {
 	std::string info;
 
 	info = this->getNick() + "!" + this->getUsername() + "@" + this->getIp();
-//	info += ":" + htons(this->getPort()); //Not sure if it right way
 	return info;
 }
 
