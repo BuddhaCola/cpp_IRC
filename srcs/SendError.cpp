@@ -12,9 +12,7 @@ void Server::sendError(Command const &command , int errorCode )
 	std::stringstream	ss;
 	User &user = command.getUser();
 	std::string commandName = command.typeToString();
-	if (command.getArguments().size()) {
-		std::vector<std::string> const &arguments = command.getArguments();
-	}
+
 	ss << errorCode;
 	msg += ss.str() + " " + user.getNick();
 	switch (errorCode)

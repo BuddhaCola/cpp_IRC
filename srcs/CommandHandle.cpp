@@ -144,12 +144,11 @@ void Server::registerUserAndSendMOTD(User &user) {
 
 void Server::createAndSendMessageOfTHeDay(User &user)
 {
-	//TODO move it to the propper method
 	std::stringstream stream;
 	stream << "001 * :- Welcome to " + _serverName + " server, " + user
 	.getUserInfoString() + "\r\n";
 	stream << ":" + _serverName + " 375 " + user.getNick() + " :- " + _serverName +" Message of the Day -\r\n";
-	stream << ":" + _serverName + " 372 " + user.getNick() + " wow\r\n";
+	stream << ":" + _serverName + " 372 " + user.getNick() + " Welcome to " + _serverName + " Server!\r\n";
 	stream << ":" + _serverName + " 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
 	logger.logUserMessage(mes_376, user, OUT);
@@ -283,11 +282,11 @@ void Server::sendMessageToChannel(const Channel &channel, std::string string) {
 	}
 }
 
-User *Server::findUserByNick(const std::string &reciverNick) { //TODO move it
+User *Server::findUserByNick(const std::string &reciverNick) {
 	User *reciver = 0;
 	std::string	reciverNickLowercased = toLowercase(reciverNick);
 
-	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) { //TODO move to findUserByNick
+	for (std::vector<User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it) {
 		if ((*it)->getNickLowercase() == reciverNickLowercased) {
 			reciver = (*it);
 			break;

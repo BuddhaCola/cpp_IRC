@@ -2,7 +2,6 @@
 
 //https://datatracker.ietf.org/doc/html/rfc2812#section-3.1.2
 void Server::handleSetNick(const Command &command) {
-	//TODO handle change nick by registered user
 	std::stringstream logStream;
 	if (command.getArguments().size() < 1) {
 		sendError(command, ERR_NONICKNAMEGIVEN);

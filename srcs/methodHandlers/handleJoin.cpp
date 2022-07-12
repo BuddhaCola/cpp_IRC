@@ -1,7 +1,15 @@
 #include "../../includes/Server.hpp"
 
+//Numeric Replies:
+//ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
+//ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
+//ERR_CHANNELISFULL               ERR_BADCHANMASK
+//ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
+//RPL_TOPIC
 void Server::handleJoin(const Command &command) {
-	//TODO errorcheck
+	if (command.getArguments().size() < 1) {
+		return sendError(command, ERR_NEEDMOREPARAMS);
+	}
 	std::string const	&channelName = command.getArgument(0);
 	User				&user = command.getUser();
 	Channel				*channel;
@@ -31,7 +39,7 @@ void Server::handleJoin(const Command &command) {
 			channel->addUser(user);
 		}
 	}
-	sendMessageToChannel(*channel, ":" + user.getUserInfoString() + " " + "JOIN" + " :" + channel->getName() + "\r\n"); //TODO bullshit
+	sendMessageToChannel(*channel, ":" + user.getUserInfoString() + " " + "JOIN" + " :" + channel->getName() + "\r\n");
 
 	std::stringstream names;
 	std::vector<User *> users = channel->getUsers();

@@ -47,8 +47,8 @@ Command &Command::operator=(const Command &other) {
 	return (*this);
 }
 
-Command::Command(const Command &other) : _type(other.getType()), _user(other.getUser()), _arguments(other._arguments) {
-	if (other._textPart && _arguments.size() > 0) {
+Command::Command(const Command &other) : _type(other.getType()), _arguments(other._arguments), _user(other.getUser()) {
+	if (other._textPart && !_arguments.empty()) {
 		_textPart = &_arguments.at(_arguments.size() - 1);
 	}
 }
