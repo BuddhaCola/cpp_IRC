@@ -16,10 +16,9 @@ std::vector<User *> Server::collectToKickList(const Command &command, Channel *c
 		usersToKick.push_back(inputArgumentCopy.substr(0, current));
 		inputArgumentCopy = inputArgumentCopy.substr(current + 1);
 	}
-	for (int i = 0; i < usersToKick.size(); ++i) {
+	for (int i = 0; i < (int)usersToKick.size(); ++i) {
 		std::string	currentUserNick = usersToKick.at(i);
 		User		*currentUser;
-		currentUserNick = currentUserNick;
 		currentUser  = channel->findUserByNick(currentUserNick);
 		if (!currentUser) {
 			sendError(command, ERR_NOSUCHNICK);
@@ -50,7 +49,7 @@ void Server::handleKick(const Command &command) {
 		return sendError(command, ERR_CHANOPRIVSNEEDED);
 	}
 	toKick = collectToKickList(command, channel);
-	for (int i = 0; i < toKick.size(); ++i) {
+	for (int i = 0; i < (int)toKick.size(); ++i) {
 		std::string	msg = user.getUserInfoString() + " KICK " + channel->getName() + " " + toKick.at(i)->getNick() + " :" + user.getNick();
 		removeUserFromChannel(*toKick.at(i), *channel, msg);
 	}

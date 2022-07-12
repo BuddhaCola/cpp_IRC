@@ -74,7 +74,7 @@ void Logger::logUserMessage(std::string message, User &user, LogType type) {
 	logMessage(logStream, type);
 }
 
-Logger &Logger::operator=(const Logger &other) {
+Logger &Logger::operator=(const Logger &) {
 	return *this;
 }
 

@@ -8,7 +8,7 @@ void Server::pingClient()
 {
 	std::time_t timeNow;
 	std::string pingString;
-	for (int i = 0; i < _users.size(); i++) {
+	for (int i = 0; i < (int)_users.size(); i++) {
 		User &user  = *_users.at(i);
 		pingString = "PING " + std::to_string(user.getTimestamp()) + "\r\n";
 		logger.logUserMessage(pingString, user, OUT);

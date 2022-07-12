@@ -41,7 +41,6 @@ void Server::processConnection(int listen_sock)
 			new_user->setPort(
 					ntohs(client.sin_port));
 			new_user->setIp(inet_ntoa(client.sin_addr));
-			int iq = ntohs(client.sin_port);
 			logger.logMessage(logStream, INFO);
 			_users.push_back(new_user);
 			continue;

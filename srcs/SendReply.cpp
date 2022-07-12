@@ -10,9 +10,7 @@ void		Server::sendReply(Command const &command, int replyCode)
 	std::stringstream	ss;
 	User &user = command.getUser();
 	std::string commandName = command.typeToString();
-	if (command.getArguments().size() != 0) {
-		std::vector<std::string> const &arguments = command.getArguments();
-	}
+
 	ss << replyCode;
 	msg += ss.str() + " " + user.getNick();
 	switch (replyCode)

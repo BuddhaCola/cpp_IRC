@@ -57,9 +57,6 @@ void Server::printUser(const Command &command)
 
 void Server::handleWho(const Command &command)
 {
-	User &user = 						command.getUser();
-	std::vector<Channel *> &channels = 	user.getChannels();
-
 	if (command.getArguments().size() == 0) {
 		return sendError(command, ERR_NEEDMOREPARAMS);
 	}
