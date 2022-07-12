@@ -29,7 +29,7 @@ public:
 	Server(int, std::string);
 	void 						createFdList(int);
 	User * 						checkFdUser(int i);
-	void 						pollDefault(int listen_sock);
+	void 						processConnection(int listen_sock);
 	int 						createListenSocket(int);
 	void						mainLoop(int);
 	std::string					getPassword() const;
@@ -55,7 +55,7 @@ private:
 	bool						checkIfNickRegistered(const std::string &nick);
 	Channel						* findChannel(const std::string &channel);
 	void						registerUserAndSendMOTD(User &user);
-	void						createAndSendMessageOfTHeDay(const User &user);
+	void						createAndSendMessageOfTHeDay(User &user);
 	void						removeUserFromAllChannels(User &user, const std::string &reason);
 	void						sendMessageToChannel(const Channel &channel, std::string string);
 	void						sendMessageToChannel(Command const &);
@@ -67,6 +67,7 @@ private:
 	void						removeUserFromChannel(User &, Channel &, const std::string &);
 	void						printUser(const Command &);
 	void						printChannel(const Command &);
+	User 						*findUserByFd(int fd);
 	User						*findUserByNick(const std::string &);
 	std::vector<User *>			collectToKickList(const Command &, Channel *);
 	void						handleBotMessage(const Command &);
@@ -89,5 +90,6 @@ private:
 	void						botGreeting(User &user);
 	void						botListUsers(User &user);
 	void						botListChannels(User &user);
+
 };
 #endif //MY_IRC_SERVER_HPP

@@ -1,6 +1,6 @@
 #include "../includes/Server.hpp"
 
-void Server::pollDefault(int listen_sock)
+void Server::processConnection(int listen_sock)
 {
 	std::stringstream logStream;
 
@@ -16,7 +16,7 @@ void Server::pollDefault(int listen_sock)
 			int new_sock = accept(listen_sock, (struct sockaddr *) &client,
 								  &len);
 			if (new_sock < 0) {
-				logStream << "accept fail..." << std::endl;
+				logStream << "accept fail" << std::endl;
 				logger.logMessage(logStream, ERROR);
 				continue;
 			}
@@ -50,11 +50,11 @@ void Server::pollDefault(int listen_sock)
 			char buf[1024];
 			ssize_t s = read(fd_list[i].fd, buf, sizeof(buf) - 1);
 			if (s < 0) {
-				logStream << "read fail..." << std::endl;
+				logStream << "read fail" << std::endl;
 				logger.logMessage(logStream, ERROR);
 			} else if (s == 0) {
-				logStream << "client quit..." << std::endl;
-				logger.logMessage(logStream, INFO);
+				User *user = findUserByFd(fd_list[i].fd);
+				killUser(*user, " QUIT :Remote host closed the connection");
 				close(fd_list[i].fd);
 				fd_list[i].fd = -1;
 			} else {

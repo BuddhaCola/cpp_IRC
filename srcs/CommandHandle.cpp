@@ -116,7 +116,10 @@ std::vector<Command> Server::parseRequest(std::string const &request, User &user
 			commands.push_back(Command(current, user));
 		}
 		catch (FtException &e) {
-				//TODO sendError(current, 421);
+
+				std::string strError = ":My-IRC 421 " + user.getNick() + " "
+					+ current + " :Unknown command\r\n";
+				write(user.getFd(), strError.c_str(), strError.length());
 				logStream << "unrecognized request: \"" << current << '\"' << std::endl;
 				logger.logMessage(logStream, ERROR);
 		}
@@ -139,16 +142,17 @@ void Server::registerUserAndSendMOTD(User &user) {
 	}
 }
 
-void Server::createAndSendMessageOfTHeDay(const User &user)
+void Server::createAndSendMessageOfTHeDay(User &user)
 {
 	//TODO move it to the propper method
 	std::stringstream stream;
-	stream << " 001 * :- Welcome to " + _serverName + " server, " + user.getUserInfoString() +
-	"\r\n";
+	stream << "001 * :- Welcome to " + _serverName + " server, " + user
+	.getUserInfoString() + "\r\n";
 	stream << ":" + _serverName + " 375 " + user.getNick() + " :- " + _serverName +" Message of the Day -\r\n";
 	stream << ":" + _serverName + " 372 " + user.getNick() + " wow\r\n";
 	stream << ":" + _serverName + " 376 " + user.getNick() + " :End of /MOTD command.\r\n";
 	std::string mes_376 = stream.str();
+	logger.logUserMessage(mes_376, user, OUT);
 	send(user.getFd(), mes_376.c_str(), mes_376.length() + 1, 0);
 }
 
@@ -183,6 +187,7 @@ void Server::killUser(User &user, std::string reason) {
 			_users.erase(it);
 			fd_list[user.getFd() - 3].fd = -1;
 			delete &user;
+			logStream << user.getUserInfoString() + reason + "\r\n";
 			logger.logMessage(logStream, INFO);
 			break;
 		}
@@ -289,4 +294,17 @@ User *Server::findUserByNick(const std::string &reciverNick) { //TODO move it
 		}
 	}
 	return reciver;
+}
+
+User * Server::findUserByFd(int fd)
+{
+	User *toFind = 0;
+	for (std::vector<User*>::iterator it = this->_users.begin(); it !=
+	this->_users.end(); ++it) {
+		if ((*it)->getFd() == fd) {
+			toFind = (*it);
+			break;
+		}
+	}
+	return toFind;
 }
