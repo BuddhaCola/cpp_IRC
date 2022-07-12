@@ -4,12 +4,14 @@
 #include <unistd.h>
 #include <iostream>
 
-User::User() : _fd(-1), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false), _oper(
-		false) {
+User::User() : _nick(std::string()), _fd(-1),
+_authorized(false), _registered(false), _oper
+(false), _timestamp(std::time(NULL)) {
 }
 
-User::User(int fd_user) : _fd(fd_user), _nick(std::string()), _timestamp(std::time(NULL)), _registered(false), _authorized(false), _oper(
-		false) {
+User::User(int fd_user) : _nick(std::string()), _fd(fd_user),  _authorized
+(false), _registered(false), _oper(
+		false), _timestamp(std::time(NULL)) {
 }
 
 User::~User() { //user isn't deleted on quit
