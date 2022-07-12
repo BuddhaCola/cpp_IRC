@@ -19,7 +19,7 @@ void Server::pingClient()
 				"(Ping timeout: "+ std::to_string(TIMEOUT) + " seconds)\n";
 			write(user.getFd(), message.c_str(), message.length());
 			logger.logUserMessage(message, user, OUT);
-			killUser(user, "ping timeout"); //TODO fix
+			killUser(user, "ping timeout");
 		}
 	}
 }

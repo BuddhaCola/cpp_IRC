@@ -33,7 +33,7 @@ void validateArguments(int ac, char **av) {
 	}
 }
 
-int main(int ac, char **av) //TODO fix segfault on start of second server
+int main(int ac, char **av)
 {
 	validateArguments(ac, av);
 	std::string password = ac == 3 ? std::string(av[2]) : std::string();
