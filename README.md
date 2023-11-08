@@ -1,3 +1,4 @@
-# My_IRC
-IRC server implemented in C++.\
-For a case if government block Telegram.
+# IRC server
+Written in C++\
+Supports any IRC client\
+Support file-transfering
